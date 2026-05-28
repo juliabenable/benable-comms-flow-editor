@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Communication Flow Editor — Benable</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: #F5F5F7;
+      color: #1D1D1F;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 36px 48px 0;
+      flex-wrap: wrap;
+    }
+    .topbar h1 {
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+    .topbar .subtitle {
+      font-size: 13px;
+      color: #6E6E73;
+      margin-top: 5px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .saved-indicator {
+      font-size: 11.5px;
+      color: #34C759;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-right: 4px;
+    }
+    .saved-indicator.show { opacity: 1; }
+    .tool-btn {
+      background: white;
+      border: 1px solid #D2D2D7;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #1D1D1F;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s, border-color 0.12s, transform 0.08s;
+    }
+    .tool-btn:hover { background: #FAFAFC; border-color: #B8B8BD; }
+    .tool-btn:active { transform: scale(0.97); }
+    .tool-btn.flash { background: #34C759; border-color: #34C759; color: white; }
+    .tool-btn-danger { color: #B91C1C; }
+    .tool-btn-danger:hover { background: #FEF2F2; border-color: #FCA5A5; }
+
+    /* ── Legend / filters ── */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 22px 48px 28px;
+      flex-wrap: wrap;
+    }
+    .legend-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8E8E93;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 4px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px 5px 9px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .chip.email { border-color: #3B82F6; color: #3B82F6; background: white; }
+    .chip.email .dot { background: #3B82F6; }
+    .chip.email.active { background: #3B82F6; color: white; }
+    .chip.email.active .dot { background: white; }
+    .chip.sms { border-color: #10B981; color: #10B981; background: white; }
+    .chip.sms .dot { background: #10B981; }
+    .chip.sms.active { background: #10B981; color: white; }
+    .chip.sms.active .dot { background: white; }
+    .chip.inapp { border-color: #8B5CF6; color: #8B5CF6; background: white; }
+    .chip.inapp .dot { background: #8B5CF6; }
+    .chip.inapp.active { background: #8B5CF6; color: white; }
+    .chip.inapp.active .dot { background: white; }
+    .chip.igdm { border-color: #E1306C; color: #E1306C; background: white; }
+    .chip.igdm .dot { background: #E1306C; }
+    .chip.igdm.active { background: #E1306C; color: white; }
+    .chip.igdm.active .dot { background: white; }
+    .total-badge {
+      margin-left: auto;
+      font-size: 12px;
+      color: #8E8E93;
+    }
+    .total-badge strong { color: #1D1D1F; }
+
+    /* ── Scroll wrapper ── */
+    .scroll-wrapper {
+      overflow-x: auto;
+      padding: 0 48px 52px;
+      position: relative;
+    }
+    .scroll-wrapper::-webkit-scrollbar { height: 4px; }
+    .scroll-wrapper::-webkit-scrollbar-track { background: #E5E5EA; border-radius: 2px; }
+    .scroll-wrapper::-webkit-scrollbar-thumb { background: #C7C7CC; border-radius: 2px; }
+
+    /* ── Timeline ── */
+    .timeline {
+      display: flex;
+      gap: 0;
+      min-width: max-content;
+      position: relative;
+      padding-top: 4px;
+      align-items: flex-start;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 23px;
+      left: 130px;
+      right: 130px;
+      height: 2px;
+      background: #E5E5EA;
+      z-index: 0;
+    }
+
+    /* ── Gap (insert stage button) ── */
+    .stage-gap {
+      width: 14px;
+      flex-shrink: 0;
+      align-self: stretch;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+    .stage-gap .add-stage-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: white;
+      border: 1.5px dashed #C7C7CC;
+      color: #8E8E93;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, transform 0.12s, background 0.12s, color 0.12s, border-color 0.12s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-top: 12px;
+      font-family: inherit;
+    }
+    .timeline:hover .add-stage-btn { opacity: 1; }
+    .stage-gap .add-stage-btn:hover {
+      background: #1D1D1F;
+      color: white;
+      border-color: #1D1D1F;
+      transform: scale(1.15);
+    }
+    .stage-gap.drop-target::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 50%;
+      width: 3px;
+      transform: translateX(-50%);
+      background: #FF9F0A;
+      border-radius: 2px;
+    }
+
+    /* ── Stage column ── */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 206px;
+      flex-shrink: 0;
+      padding: 0 10px;
+      position: relative;
+    }
+    .stage.dragging { opacity: 0.4; }
+
+    .stage-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      cursor: grab;
+      width: 100%;
+    }
+    .stage-head:active { cursor: grabbing; }
+    .stage-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #1D1D1F;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      box-shadow: 0 0 0 5px #F5F5F7, 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.12s;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .stage-circle:hover { transform: scale(1.08); }
+    .stage.branch .stage-circle {
+      background: #FF9F0A;
+      font-size: 18px;
+    }
+    .stage-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
+      color: #1D1D1F;
+      outline: none;
+      padding: 2px 6px;
+      border-radius: 4px;
+      max-width: 180px;
+      word-wrap: break-word;
+    }
+    .stage-name:hover { background: rgba(0,0,0,0.04); }
+    .stage-name:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; }
+    .stage.branch .stage-name { color: #B45309; }
+    .stage-sub {
+      font-size: 10.5px;
+      color: #8E8E93;
+      text-align: center;
+      margin-top: 3px;
+      max-width: 170px;
+      line-height: 1.4;
+      outline: none;
+      padding: 2px 6px;
+      border-radius: 4px;
+      min-height: 17px;
+    }
+    .stage-sub:empty::before {
+      content: 'Add subtitle…';
+      color: #C7C7CC;
+      font-style: italic;
+    }
+    .stage-sub:hover { background: rgba(0,0,0,0.04); }
+    .stage-sub:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; }
+
+    .stage-delete {
+      position: absolute;
+      top: -4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid #D2D2D7;
+      color: #6E6E73;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.12s, color 0.12s, border-color 0.12s;
+      z-index: 3;
+      padding: 0;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .stage:hover .stage-delete { opacity: 1; }
+    .stage-delete:hover {
+      background: #B91C1C;
+      color: white;
+      border-color: #B91C1C;
+    }
+
+    /* ── Cards ── */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      width: 100%;
+      min-height: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 10px 12px 10px 10px;
+      border-left: 3px solid;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      cursor: grab;
+      transition: transform 0.13s ease, box-shadow 0.13s ease, opacity 0.15s;
+      position: relative;
+    }
+    .card:active { cursor: grabbing; }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .card.dragging { opacity: 0.4; }
+    .card.email  { border-left-color: #3B82F6; }
+    .card.sms    { border-left-color: #10B981; }
+    .card.inapp  { border-left-color: #8B5CF6; }
+    .card.igdm   { border-left-color: #E1306C; }
+    .card.hidden { display: none; }
+
+    .card-type {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 1px 4px;
+      border-radius: 3px;
+      transition: background 0.1s;
+    }
+    .card-type:hover { background: rgba(0,0,0,0.06); }
+    .card.email .card-type  { color: #3B82F6; }
+    .card.sms .card-type    { color: #10B981; }
+    .card.inapp .card-type  { color: #8B5CF6; }
+    .card.igdm .card-type   { color: #E1306C; }
+
+    .card-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #1D1D1F;
+      margin-top: 3px;
+      line-height: 1.3;
+      outline: none;
+      padding: 2px 4px;
+      margin-left: -4px;
+      border-radius: 4px;
+    }
+    .card-name:hover { background: rgba(0,0,0,0.04); }
+    .card-name:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+
+    .card-trigger {
+      font-size: 10.5px;
+      color: #8E8E93;
+      margin-top: 3px;
+      outline: none;
+      padding: 2px 4px;
+      margin-left: -4px;
+      border-radius: 4px;
+      min-height: 16px;
+    }
+    .card-trigger:empty::before {
+      content: 'Add trigger…';
+      color: #D1D1D6;
+      font-style: italic;
+    }
+    .card-trigger:hover { background: rgba(0,0,0,0.04); }
+    .card-trigger:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+
+    .card-sender {
+      font-size: 10px;
+      color: #A1A1A6;
+      margin-top: 4px;
+      font-weight: 500;
+      outline: none;
+      padding: 2px 4px;
+      margin-left: -4px;
+      border-radius: 4px;
+      min-height: 16px;
+    }
+    .card-sender:empty::before {
+      content: '+ sender';
+      color: #D1D1D6;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .card:hover .card-sender:empty::before { opacity: 1; }
+    .card-sender:hover { background: rgba(0,0,0,0.04); }
+    .card-sender:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+    .card-sender::before { content: ''; }
+    .card-sender:not(:empty)::before {
+      content: 'From ';
+      color: #C7C7CC;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: #4A4A4F;
+      line-height: 1.55;
+      margin-top: 8px;
+      padding: 6px 6px 6px 6px;
+      border-top: 1px solid #F2F2F7;
+      outline: none;
+      border-radius: 4px;
+      min-height: 24px;
+      white-space: pre-wrap;
+    }
+    .card-desc:empty::before {
+      content: 'Add description…';
+      color: #D1D1D6;
+      font-style: italic;
+    }
+    .card-desc:hover { background: rgba(0,0,0,0.04); }
+    .card-desc:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+
+    .card-delete {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid #D2D2D7;
+      color: #6E6E73;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.12s, color 0.12s, border-color 0.12s;
+      z-index: 2;
+      padding: 0;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .card:hover .card-delete { opacity: 1; }
+    .card-delete:hover {
+      background: #B91C1C;
+      color: white;
+      border-color: #B91C1C;
+    }
+
+    /* Note */
+    .note {
+      background: #FFF8E8;
+      border: 1.5px solid #FBBF24;
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 10.5px;
+      color: #78350F;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    /* Add card button */
+    .add-card-btn {
+      background: white;
+      border: 1.5px dashed #C7C7CC;
+      border-radius: 10px;
+      padding: 9px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #8E8E93;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      width: 100%;
+    }
+    .add-card-btn:hover {
+      border-color: #1D1D1F;
+      color: #1D1D1F;
+      background: #FAFAFC;
+    }
+
+    /* Empty state */
+    .empty-timeline {
+      width: 100%;
+      padding: 80px 48px;
+      text-align: center;
+    }
+    .empty-timeline button {
+      background: white;
+      border: 1.5px dashed #C7C7CC;
+      border-radius: 10px;
+      padding: 18px 32px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6E6E73;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .empty-timeline button:hover {
+      border-color: #1D1D1F;
+      color: #1D1D1F;
+    }
+
+    /* Drop indicator (in card list) */
+    .drop-indicator {
+      height: 3px;
+      background: #FF9F0A;
+      border-radius: 2px;
+      margin: -1px 0;
+      pointer-events: none;
+    }
+
+    /* Popover */
+    .popover {
+      position: absolute;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.08);
+      padding: 6px;
+      min-width: 160px;
+      z-index: 100;
+      font-size: 12.5px;
+    }
+    .popover[hidden] { display: none; }
+    .popover-section { padding: 4px 0; }
+    .popover-section + .popover-section { border-top: 1px solid #F2F2F7; margin-top: 4px; padding-top: 8px; }
+    .popover-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #8E8E93;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 8px 4px;
+    }
+    .popover-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #1D1D1F;
+      transition: background 0.1s;
+    }
+    .popover-option:hover { background: #F5F5F7; }
+    .popover-option.selected { background: #F5F5F7; font-weight: 600; }
+    .popover-option .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .popover-note {
+      width: 100%;
+      border: 1px solid #D2D2D7;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11.5px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 56px;
+      color: #1D1D1F;
+      outline: none;
+    }
+    .popover-note:focus { border-color: #3B82F6; }
+    .popover-kind {
+      display: flex;
+      gap: 4px;
+      padding: 0 4px 4px;
+    }
+    .popover-kind button {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid #D2D2D7;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      color: #1D1D1F;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+    .popover-kind button.active {
+      background: #1D1D1F;
+      color: white;
+      border-color: #1D1D1F;
+    }
+    .popover-kind button.branch.active {
+      background: #FF9F0A;
+      border-color: #FF9F0A;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: #1D1D1F;
+      color: white;
+      padding: 11px 14px 11px 16px;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    .toast button {
+      background: transparent;
+      color: #60A5FA;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+    .toast button:hover { background: rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Creator Communication Flow</h1>
+      <p class="subtitle">Benable Brand Portal · Edit stages and touchpoints inline</p>
+    </div>
+    <div class="topbar-right">
+      <span class="saved-indicator" id="savedIndicator">Saved ✓</span>
+      <button class="tool-btn" id="btnShare">Copy share link</button>
+      <button class="tool-btn" id="btnExport">Export JSON</button>
+      <button class="tool-btn" id="btnImport">Import JSON</button>
+      <button class="tool-btn tool-btn-danger" id="btnReset">Reset</button>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="legend-label">Show</span>
+    <span class="chip email active" data-type="email"><span class="dot"></span> Email <span class="cnt"></span></span>
+    <span class="chip sms active" data-type="sms"><span class="dot"></span> SMS <span class="cnt"></span></span>
+    <span class="chip inapp active" data-type="inapp"><span class="dot"></span> In-app <span class="cnt"></span></span>
+    <span class="chip igdm active" data-type="igdm"><span class="dot"></span> IG DM <span class="cnt"></span></span>
+    <span class="total-badge"><strong id="total-count">0</strong> touchpoints · click any text to edit · drag cards/stages to reorder</span>
+  </div>
+
+  <div class="scroll-wrapper">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <datalist id="senders">
+    <option value="Benny"></option>
+    <option value="Account Manager"></option>
+    <option value="Brand"></option>
+    <option value="Automated"></option>
+  </datalist>
+
+  <input type="file" id="fileInput" accept="application/json" style="display:none">
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span id="toastMsg"></span>
+    <button id="toastUndo">Undo</button>
+  </div>
+
+  <div id="popover" class="popover" hidden></div>
+
+  <script>
+  // ───────────── SEED DATA ─────────────
+  const SEED = {
+    version: 1,
+    channels: {
+      email: { label: "Email",  color: "#3B82F6" },
+      sms:   { label: "SMS",    color: "#10B981" },
+      inapp: { label: "In-app", color: "#8B5CF6" },
+      igdm:  { label: "IG DM",  color: "#E1306C" }
+    },
+    stages: [
+      {
+        id: "s1", name: "Invite Sent", subtitle: "Creator invited to the campaign",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c1", channel: "email", name: "Campaign Invite", trigger: "On invite sent", sender: "Account Manager",
+            description: "Subject line includes creator name + brand name. Introduces the brand, campaign overview, and a clear CTA to accept via portal. Creator name personalisation is a top creator request." },
+          { id: "c2", channel: "inapp", name: "Invite Notification", trigger: "On invite sent", sender: "Automated",
+            description: "In-portal notification prompting creator to review and accept the campaign invite. Creators prefer this over email-only; both should fire simultaneously." }
+        ]
+      },
+      {
+        id: "s2", name: "No Response", subtitle: "Conditional — if no reply after invite",
+        kind: "branch",
+        note: "⚠ Auto-archive at Day 7\nNo response after 7 days triggers auto-archive. Archive reason is recorded. Creator returns to general pool.",
+        cards: [
+          { id: "c3", channel: "sms", name: "Follow-up Nudge", trigger: "12–24h after invite", sender: "Benny",
+            description: "Short text nudge reminding creator to check their invite. Sent via Benny when no portal response is detected within 12–24 hours." },
+          { id: "c4", channel: "email", name: "Monetary Component", trigger: "Day 3–4, still no response", sender: "Account Manager",
+            description: "Follow-up email introducing an added incentive or value signal. Final outreach before auto-archive triggers on Day 7." }
+        ]
+      },
+      {
+        id: "s3", name: "Accepted", subtitle: "Invite accepted, onboarding begins",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c5", channel: "email", name: "Onboarding Welcome", trigger: "On acceptance", sender: "Automated",
+            description: "Guides creator through completing their profile: collaboration preferences, gifted campaign openness, small brand willingness, and platform preferences." },
+          { id: "c6", channel: "inapp", name: "Profile Setup Flow", trigger: "On acceptance", sender: "Automated",
+            description: "Onboarding flow capturing: content type preference (social / UGC / both), gifted openness, small brand willingness, dream collaborations, and platform preferences." },
+          { id: "c7", channel: "inapp", name: "Shipping Address Prompt", trigger: "During onboarding", sender: "Automated",
+            description: "Must be visually prominent — multiple creators missed this step in early testing. Asks creator to enter or confirm their shipping address before campaign proceeds." }
+        ]
+      },
+      {
+        id: "s4", name: "Campaign Brief", subtitle: "Matched to a brand campaign",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c8", channel: "email", name: "Campaign Brief", trigger: "On campaign assignment", sender: "Account Manager",
+            description: "Brand overview, content requirements, posting platform, usage rights scope + duration (must be explicit — confusion caused campaign declines), posting timeline, and minimum gift value." },
+          { id: "c9", channel: "inapp", name: "Campaign Card", trigger: "On campaign assignment", sender: "Automated",
+            description: "In-portal campaign card showing brief, deliverables, deadline, gifted product details, brand contact, and usage rights. Surfaced alongside creator's collaboration preferences for easy comparison." }
+        ]
+      },
+      {
+        id: "s5", name: "Product Sent", subtitle: "Gifted product in transit",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c10", channel: "email", name: "Shipping Confirmation", trigger: "When product ships", sender: "Automated",
+            description: "Shipping details and tracking info for gifted product(s). Includes expected arrival date and handling notes if relevant (e.g. fragile, perishable)." },
+          { id: "c11", channel: "inapp", name: "Product Received Check-in", trigger: "On expected delivery date", sender: "Automated",
+            description: "Prompt asking creator to confirm product arrival and flag any issues. Triggers support flow if wrong item, damaged, or not received." }
+        ]
+      },
+      {
+        id: "s6", name: "Deadline", subtitle: "Posting deadline approaching",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c12", channel: "inapp", name: "Deadline Reminder", trigger: "72h before deadline", sender: "Automated",
+            description: "Portal banner showing days remaining to post, content requirements recap, and link to submission instructions." },
+          { id: "c13", channel: "email", name: "Deadline Reminder", trigger: "48h before deadline", sender: "Automated",
+            description: "Email reminder with posting deadline, content requirements, and how to submit. Note: skincare/makeup creators may need 1+ week for results — this should be accounted for in brief timing." },
+          { id: "c14", channel: "sms", name: "Final Nudge", trigger: "24h before deadline", sender: "Benny",
+            description: "Short SMS for creators who haven't yet posted. Direct link to campaign brief in portal." }
+        ]
+      },
+      {
+        id: "s7", name: "Content Review", subtitle: "Submitted, under compliance review",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c15", channel: "inapp", name: "Submission Received", trigger: "On content submission", sender: "Automated",
+            description: "Confirmation that content has been logged and is under compliance review. Shows estimated review timeframe." },
+          { id: "c16", channel: "email", name: "Content Approved ✓", trigger: "On approval", sender: "Automated",
+            description: "Confirmation that content meets campaign requirements and compliance guidelines. Campaign closes from creator's perspective." },
+          { id: "c17", channel: "email", name: "Revision Requested", trigger: "If revision required", sender: "Account Manager",
+            description: "Specific feedback on what needs to change, with a resubmission deadline clearly stated." }
+        ]
+      },
+      {
+        id: "s8", name: "Complete", subtitle: "Campaign wrapped",
+        kind: "primary", note: null,
+        cards: [
+          { id: "c18", channel: "email", name: "Campaign Thank You", trigger: "On campaign close", sender: "Account Manager",
+            description: "Wrap-up email thanking the creator for participating. Highlights brand appreciation. Long-term relationship signals (early product access, PR lists) are a key differentiator for creator retention." },
+          { id: "c19", channel: "inapp", name: "Rate Your Experience", trigger: "After campaign close", sender: "Automated",
+            description: "Optional creator feedback prompt on the campaign and brand experience. Feeds back into matching quality." },
+          { id: "c20", channel: "email", name: "Next Campaign Invite", trigger: "Post-campaign, high-performers only", sender: "Account Manager",
+            description: "Early access invite to upcoming campaigns. Sent to high-scoring creators as a loyalty and retention signal. Reinforces long-term relationship value." }
+        ]
+      }
+    ]
+  };
+
+  // ───────────── STATE ─────────────
+  const STORAGE_KEY = 'benable.commsflow.v1';
+  const CHANNEL_KEYS = ['email', 'sms', 'inapp', 'igdm'];
+  const activeChannels = new Set(CHANNEL_KEYS);
+  let state = null;
+  let lastSnapshot = null;
+  let lastSnapshotLabel = null;
+  let saveTimer = null;
+  let toastTimer = null;
+
+  function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+  function makeId(prefix) {
+    const rand = (crypto && crypto.randomUUID) ? crypto.randomUUID().slice(0,8) : Math.random().toString(36).slice(2,10);
+    return prefix + '_' + rand;
+  }
+
+  function loadState() {
+    // URL hash
+    if (location.hash.startsWith('#state=')) {
+      try {
+        const decoded = decodeFromUrl(location.hash.slice('#state='.length));
+        if (decoded && decoded.version === 1 && Array.isArray(decoded.stages)) {
+          history.replaceState(null, '', location.pathname + location.search);
+          return decoded;
+        }
+      } catch (e) { console.warn('Bad share-URL state', e); }
+    }
+    // localStorage
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.version === 1 && Array.isArray(parsed.stages)) return parsed;
+      }
+    } catch (e) { console.warn('Bad localStorage state', e); }
+    return clone(SEED);
+  }
+
+  function saveState() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        flashSaved();
+      } catch (e) { console.warn('Save failed', e); }
+    }, 250);
+  }
+
+  function flashSaved() {
+    const el = document.getElementById('savedIndicator');
+    el.classList.add('show');
+    clearTimeout(flashSaved._t);
+    flashSaved._t = setTimeout(() => el.classList.remove('show'), 800);
+  }
+
+  // ───────────── URL ENCODING ─────────────
+  function encodeForUrl(s) {
+    const json = JSON.stringify(s);
+    const bytes = new TextEncoder().encode(json);
+    let binStr = '';
+    bytes.forEach(b => binStr += String.fromCharCode(b));
+    return btoa(binStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decodeFromUrl(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) str += '=';
+    const binStr = atob(str);
+    const bytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  // ───────────── LOOKUPS ─────────────
+  function findStage(stageId) { return state.stages.find(s => s.id === stageId); }
+  function findCard(cardId) {
+    for (const s of state.stages) {
+      const c = s.cards.find(c => c.id === cardId);
+      if (c) return { card: c, stage: s };
+    }
+    return null;
+  }
+
+  // ───────────── RENDER ─────────────
+  const STAGE_NUM_NAMES = [];
+
+  function render() {
+    const tl = document.getElementById('timeline');
+    tl.innerHTML = '';
+
+    if (state.stages.length === 0) {
+      const wrap = document.createElement('div');
+      wrap.className = 'empty-timeline';
+      const btn = document.createElement('button');
+      btn.textContent = '+ Add first stage';
+      btn.onclick = () => addStage(0);
+      wrap.appendChild(btn);
+      tl.appendChild(wrap);
+      updateCounts();
+      return;
+    }
+
+    // Count primary stages for numbering
+    let primaryCounter = 0;
+    state.stages.forEach((stage, i) => {
+      tl.appendChild(renderGap(i));
+      const stageLabel = stage.kind === 'primary' ? (++primaryCounter) : '!';
+      tl.appendChild(renderStage(stage, i, stageLabel));
+    });
+    tl.appendChild(renderGap(state.stages.length));
+
+    updateCounts();
+    applyFilters();
+  }
+
+  function renderGap(idx) {
+    const gap = document.createElement('div');
+    gap.className = 'stage-gap';
+    gap.dataset.gapIdx = idx;
+
+    const btn = document.createElement('button');
+    btn.className = 'add-stage-btn';
+    btn.title = 'Insert stage here';
+    btn.textContent = '+';
+    btn.onclick = (e) => { e.stopPropagation(); addStage(idx); };
+    gap.appendChild(btn);
+
+    // Stage drop target
+    gap.addEventListener('dragover', onStageGapDragOver);
+    gap.addEventListener('dragleave', onStageGapDragLeave);
+    gap.addEventListener('drop', onStageGapDrop);
+
+    return gap;
+  }
+
+  function renderStage(stage, idx, labelChar) {
+    const col = document.createElement('div');
+    col.className = 'stage' + (stage.kind === 'branch' ? ' branch' : '');
+    col.dataset.stageId = stage.id;
+
+    // Delete button
+    const del = document.createElement('button');
+    del.className = 'stage-delete';
+    del.title = 'Delete stage';
+    del.textContent = '×';
+    del.onclick = (e) => { e.stopPropagation(); deleteStage(stage.id); };
+    col.appendChild(del);
+
+    // Head
+    const head = document.createElement('div');
+    head.className = 'stage-head';
+    head.draggable = true;
+    head.addEventListener('dragstart', e => onStageDragStart(e, stage.id, col));
+    head.addEventListener('dragend', e => onStageDragEnd(e, col));
+
+    const circle = document.createElement('button');
+    circle.className = 'stage-circle';
+    circle.textContent = labelChar;
+    circle.title = 'Edit stage type & note';
+    circle.onclick = (e) => { e.stopPropagation(); openStagePopover(circle, stage.id); };
+    head.appendChild(circle);
+
+    const name = document.createElement('div');
+    name.className = 'stage-name';
+    name.contentEditable = 'true';
+    name.spellcheck = false;
+    name.textContent = stage.name;
+    bindEditable(name, () => stage.name, v => { stage.name = v; });
+    head.appendChild(name);
+
+    const sub = document.createElement('div');
+    sub.className = 'stage-sub';
+    sub.contentEditable = 'true';
+    sub.spellcheck = false;
+    sub.textContent = stage.subtitle || '';
+    bindEditable(sub, () => stage.subtitle || '', v => { stage.subtitle = v; });
+    head.appendChild(sub);
+
+    col.appendChild(head);
+
+    // Cards
+    const list = document.createElement('div');
+    list.className = 'cards';
+    list.dataset.stageId = stage.id;
+    list.addEventListener('dragover', onCardListDragOver);
+    list.addEventListener('dragleave', onCardListDragLeave);
+    list.addEventListener('drop', onCardListDrop);
+
+    stage.cards.forEach(card => list.appendChild(renderCard(card, stage.id)));
+
+    if (stage.note) {
+      const noteEl = document.createElement('div');
+      noteEl.className = 'note';
+      noteEl.textContent = stage.note;
+      list.appendChild(noteEl);
+    }
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-card-btn';
+    addBtn.textContent = '+ Add card';
+    addBtn.onclick = (e) => { e.stopPropagation(); addCard(stage.id); };
+    list.appendChild(addBtn);
+
+    col.appendChild(list);
+    return col;
+  }
+
+  function renderCard(card, stageId) {
+    const el = document.createElement('div');
+    el.className = 'card ' + card.channel;
+    el.dataset.cardId = card.id;
+    el.dataset.stageId = stageId;
+    el.dataset.type = card.channel;
+    el.draggable = true;
+
+    const type = document.createElement('span');
+    type.className = 'card-type';
+    type.textContent = state.channels[card.channel].label;
+    type.title = 'Change channel';
+    type.onclick = (e) => { e.stopPropagation(); openChannelPopover(type, card.id); };
+    el.appendChild(type);
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.contentEditable = 'true';
+    name.spellcheck = false;
+    name.textContent = card.name;
+    bindEditable(name, () => card.name, v => { card.name = v; });
+    el.appendChild(name);
+
+    const trig = document.createElement('div');
+    trig.className = 'card-trigger';
+    trig.contentEditable = 'true';
+    trig.spellcheck = false;
+    trig.textContent = card.trigger || '';
+    bindEditable(trig, () => card.trigger || '', v => { card.trigger = v; });
+    el.appendChild(trig);
+
+    const sender = document.createElement('div');
+    sender.className = 'card-sender';
+    sender.contentEditable = 'true';
+    sender.spellcheck = false;
+    sender.textContent = card.sender || '';
+    bindEditable(sender, () => card.sender || '', v => { card.sender = v || null; });
+    el.appendChild(sender);
+
+    const desc = document.createElement('div');
+    desc.className = 'card-desc';
+    desc.contentEditable = 'true';
+    desc.spellcheck = true;
+    desc.textContent = card.description || '';
+    bindEditable(desc, () => card.description || '', v => { card.description = v; }, { multiline: true });
+    el.appendChild(desc);
+
+    const del = document.createElement('button');
+    del.className = 'card-delete';
+    del.title = 'Delete card';
+    del.textContent = '×';
+    del.onclick = (e) => { e.stopPropagation(); deleteCard(card.id); };
+    el.appendChild(del);
+
+    el.addEventListener('dragstart', e => onCardDragStart(e, card.id, stageId, el));
+    el.addEventListener('dragend', e => onCardDragEnd(e, el));
+
+    return el;
+  }
+
+  function updateCounts() {
+    CHANNEL_KEYS.forEach(type => {
+      const count = countCards(type);
+      const cnt = document.querySelector('.chip.' + type + ' .cnt');
+      if (cnt) cnt.textContent = '(' + count + ')';
+    });
+    const total = state.stages.reduce((acc, s) => acc + s.cards.length, 0);
+    document.getElementById('total-count').textContent = total;
+  }
+  function countCards(type) {
+    let c = 0;
+    state.stages.forEach(s => s.cards.forEach(card => { if (card.channel === type) c++; }));
+    return c;
+  }
+  function applyFilters() {
+    document.querySelectorAll('.card[data-type]').forEach(card => {
+      card.classList.toggle('hidden', !activeChannels.has(card.dataset.type));
+    });
+  }
+
+  // ───────────── EDITABLE BINDING ─────────────
+  function bindEditable(el, getCurrent, setNew, opts = {}) {
+    let original = null;
+    el.addEventListener('focus', () => {
+      original = getCurrent();
+      closePopover();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        el.textContent = original;
+        el.blur();
+      } else if (e.key === 'Enter' && !opts.multiline) {
+        e.preventDefault();
+        el.blur();
+      }
+    });
+    el.addEventListener('blur', () => {
+      const v = el.textContent.trim();
+      if (v !== getCurrent()) {
+        setNew(v);
+        saveState();
+      }
+      original = null;
+    });
+    // Prevent drag start from text drag inside editable
+    el.addEventListener('dragstart', (e) => { e.stopPropagation(); e.preventDefault(); });
+    el.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+  }
+
+  // ───────────── POPOVERS ─────────────
+  const popoverEl = () => document.getElementById('popover');
+
+  function closePopover() {
+    const p = popoverEl();
+    p.hidden = true;
+    p.innerHTML = '';
+  }
+
+  function openPopoverAt(anchor) {
+    const p = popoverEl();
+    const r = anchor.getBoundingClientRect();
+    p.style.left = (r.left + window.scrollX) + 'px';
+    p.style.top = (r.bottom + window.scrollY + 6) + 'px';
+    p.hidden = false;
+    // Reposition if off right edge
+    requestAnimationFrame(() => {
+      const pr = p.getBoundingClientRect();
+      if (pr.right > window.innerWidth - 12) {
+        p.style.left = (window.innerWidth - pr.width - 12 + window.scrollX) + 'px';
+      }
+    });
+  }
+
+  function openChannelPopover(anchor, cardId) {
+    const found = findCard(cardId);
+    if (!found) return;
+    const { card } = found;
+    const p = popoverEl();
+    p.innerHTML = '';
+    const sec = document.createElement('div');
+    sec.className = 'popover-section';
+    const lbl = document.createElement('div');
+    lbl.className = 'popover-label';
+    lbl.textContent = 'Channel';
+    sec.appendChild(lbl);
+    CHANNEL_KEYS.forEach(key => {
+      const opt = document.createElement('div');
+      opt.className = 'popover-option' + (card.channel === key ? ' selected' : '');
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = state.channels[key].color;
+      opt.appendChild(dot);
+      opt.appendChild(document.createTextNode(state.channels[key].label));
+      opt.onclick = () => {
+        card.channel = key;
+        saveState();
+        render();
+        closePopover();
+      };
+      sec.appendChild(opt);
+    });
+    p.appendChild(sec);
+    openPopoverAt(anchor);
+  }
+
+  function openStagePopover(anchor, stageId) {
+    const stage = findStage(stageId);
+    if (!stage) return;
+    const p = popoverEl();
+    p.innerHTML = '';
+
+    // Kind toggle
+    const kindSec = document.createElement('div');
+    kindSec.className = 'popover-section';
+    const kindLbl = document.createElement('div');
+    kindLbl.className = 'popover-label';
+    kindLbl.textContent = 'Stage type';
+    kindSec.appendChild(kindLbl);
+    const kindRow = document.createElement('div');
+    kindRow.className = 'popover-kind';
+    ['primary', 'branch'].forEach(k => {
+      const btn = document.createElement('button');
+      btn.textContent = k === 'primary' ? 'Primary' : 'Branch';
+      btn.className = (k === 'branch' ? 'branch' : '') + (stage.kind === k ? ' active' : '');
+      btn.onclick = () => {
+        stage.kind = k;
+        saveState();
+        render();
+        closePopover();
+      };
+      kindRow.appendChild(btn);
+    });
+    kindSec.appendChild(kindRow);
+    p.appendChild(kindSec);
+
+    // Note
+    const noteSec = document.createElement('div');
+    noteSec.className = 'popover-section';
+    const nlbl = document.createElement('div');
+    nlbl.className = 'popover-label';
+    nlbl.textContent = 'Yellow note (optional)';
+    noteSec.appendChild(nlbl);
+    const ta = document.createElement('textarea');
+    ta.className = 'popover-note';
+    ta.value = stage.note || '';
+    ta.placeholder = 'e.g. ⚠ Auto-archive at Day 7';
+    ta.oninput = () => {
+      stage.note = ta.value.trim() ? ta.value : null;
+      saveState();
+      // Re-render note inline without full timeline rebuild
+      renderStageNoteInline(stage.id);
+    };
+    noteSec.appendChild(ta);
+    p.appendChild(noteSec);
+
+    openPopoverAt(anchor);
+    setTimeout(() => ta.focus(), 50);
+  }
+
+  function renderStageNoteInline(stageId) {
+    const stage = findStage(stageId);
+    const col = document.querySelector('.stage[data-stage-id="' + stageId + '"]');
+    if (!col) return;
+    const list = col.querySelector('.cards');
+    let noteEl = list.querySelector('.note');
+    const addBtn = list.querySelector('.add-card-btn');
+    if (stage.note) {
+      if (!noteEl) {
+        noteEl = document.createElement('div');
+        noteEl.className = 'note';
+        list.insertBefore(noteEl, addBtn);
+      }
+      noteEl.textContent = stage.note;
+    } else if (noteEl) {
+      noteEl.remove();
+    }
+  }
+
+  // ───────────── MUTATIONS ─────────────
+  function addCard(stageId) {
+    const stage = findStage(stageId);
+    if (!stage) return;
+    const newCard = {
+      id: makeId('c'),
+      channel: 'email',
+      name: 'New touchpoint',
+      trigger: '',
+      sender: null,
+      description: ''
+    };
+    stage.cards.push(newCard);
+    saveState();
+    render();
+    // Focus its name
+    setTimeout(() => {
+      const el = document.querySelector('.card[data-card-id="' + newCard.id + '"] .card-name');
+      if (el) { el.focus(); selectAll(el); }
+    }, 30);
+  }
+
+  function deleteCard(cardId) {
+    const found = findCard(cardId);
+    if (!found) return;
+    takeSnapshot('Deleted "' + (found.card.name || 'card') + '"');
+    found.stage.cards = found.stage.cards.filter(c => c.id !== cardId);
+    saveState();
+    render();
+    showToast();
+  }
+
+  function addStage(idx) {
+    const newStage = {
+      id: makeId('s'),
+      name: 'New stage',
+      subtitle: '',
+      kind: 'primary',
+      note: null,
+      cards: []
+    };
+    state.stages.splice(idx, 0, newStage);
+    saveState();
+    render();
+    setTimeout(() => {
+      const el = document.querySelector('.stage[data-stage-id="' + newStage.id + '"] .stage-name');
+      if (el) { el.focus(); selectAll(el); }
+    }, 30);
+  }
+
+  function deleteStage(stageId) {
+    const stage = findStage(stageId);
+    if (!stage) return;
+    if (stage.cards.length > 0) {
+      if (!confirm('Delete "' + stage.name + '" and its ' + stage.cards.length + ' card' + (stage.cards.length === 1 ? '' : 's') + '?')) return;
+    }
+    takeSnapshot('Deleted stage "' + (stage.name || 'stage') + '"');
+    state.stages = state.stages.filter(s => s.id !== stageId);
+    saveState();
+    render();
+    showToast();
+  }
+
+  function selectAll(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // ───────────── UNDO ─────────────
+  function takeSnapshot(label) {
+    lastSnapshot = clone(state);
+    lastSnapshotLabel = label;
+  }
+  function undo() {
+    if (!lastSnapshot) return;
+    state = lastSnapshot;
+    lastSnapshot = null;
+    lastSnapshotLabel = null;
+    saveState();
+    render();
+    hideToast();
+  }
+  function showToast() {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = lastSnapshotLabel + ' · ';
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 6000);
+  }
+  function hideToast() {
+    document.getElementById('toast').classList.remove('show');
+  }
+
+  // ───────────── DRAG & DROP ─────────────
+  let dragKind = null;            // 'card' | 'stage'
+  let dragCardId = null;
+  let dragCardStageId = null;
+  let dragStageId = null;
+  let currentDropIndicator = null;
+  let highlightedGap = null;
+
+  function onCardDragStart(e, cardId, stageId, el) {
+    dragKind = 'card';
+    dragCardId = cardId;
+    dragCardStageId = stageId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'card:' + cardId);
+    requestAnimationFrame(() => el.classList.add('dragging'));
+  }
+  function onCardDragEnd(e, el) {
+    el.classList.remove('dragging');
+    clearDropIndicator();
+    dragKind = null;
+    dragCardId = null;
+    dragCardStageId = null;
+  }
+
+  function onCardListDragOver(e) {
+    if (dragKind !== 'card') return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const list = e.currentTarget;
+    const idx = computeCardDropIndex(list, e.clientY);
+    showCardDropIndicator(list, idx);
+  }
+  function onCardListDragLeave(e) {
+    if (dragKind !== 'card') return;
+    // Only clear if leaving the list entirely
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    clearDropIndicator();
+  }
+  function onCardListDrop(e) {
+    if (dragKind !== 'card') return;
+    e.preventDefault();
+    const list = e.currentTarget;
+    const targetStageId = list.dataset.stageId;
+    const idx = computeCardDropIndex(list, e.clientY);
+    moveCard(dragCardId, dragCardStageId, targetStageId, idx);
+    clearDropIndicator();
+  }
+  function computeCardDropIndex(list, clientY) {
+    const cards = Array.from(list.querySelectorAll('.card:not(.dragging)'));
+    for (let i = 0; i < cards.length; i++) {
+      const r = cards[i].getBoundingClientRect();
+      if (clientY < r.top + r.height / 2) return i;
+    }
+    return cards.length;
+  }
+  function showCardDropIndicator(list, idx) {
+    clearDropIndicator();
+    const cards = Array.from(list.querySelectorAll('.card:not(.dragging)'));
+    const ind = document.createElement('div');
+    ind.className = 'drop-indicator';
+    if (idx >= cards.length) {
+      // before the note or add button
+      const noteOrAdd = list.querySelector('.note') || list.querySelector('.add-card-btn');
+      list.insertBefore(ind, noteOrAdd);
+    } else {
+      list.insertBefore(ind, cards[idx]);
+    }
+    currentDropIndicator = ind;
+  }
+  function clearDropIndicator() {
+    if (currentDropIndicator) {
+      currentDropIndicator.remove();
+      currentDropIndicator = null;
+    }
+    if (highlightedGap) {
+      highlightedGap.classList.remove('drop-target');
+      highlightedGap = null;
+    }
+  }
+  function moveCard(cardId, fromStageId, toStageId, targetIdx) {
+    const fromStage = findStage(fromStageId);
+    const toStage = findStage(toStageId);
+    if (!fromStage || !toStage) return;
+    const srcIdx = fromStage.cards.findIndex(c => c.id === cardId);
+    if (srcIdx === -1) return;
+    const [card] = fromStage.cards.splice(srcIdx, 1);
+    // adjust targetIdx if moving within same stage and srcIdx < targetIdx
+    if (fromStageId === toStageId && srcIdx < targetIdx) targetIdx--;
+    toStage.cards.splice(targetIdx, 0, card);
+    saveState();
+    render();
+  }
+
+  function onStageDragStart(e, stageId, col) {
+    dragKind = 'stage';
+    dragStageId = stageId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'stage:' + stageId);
+    requestAnimationFrame(() => col.classList.add('dragging'));
+  }
+  function onStageDragEnd(e, col) {
+    col.classList.remove('dragging');
+    clearDropIndicator();
+    dragKind = null;
+    dragStageId = null;
+  }
+  function onStageGapDragOver(e) {
+    if (dragKind !== 'stage') return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (highlightedGap && highlightedGap !== e.currentTarget) {
+      highlightedGap.classList.remove('drop-target');
+    }
+    e.currentTarget.classList.add('drop-target');
+    highlightedGap = e.currentTarget;
+  }
+  function onStageGapDragLeave(e) {
+    if (dragKind !== 'stage') return;
+    e.currentTarget.classList.remove('drop-target');
+    if (highlightedGap === e.currentTarget) highlightedGap = null;
+  }
+  function onStageGapDrop(e) {
+    if (dragKind !== 'stage') return;
+    e.preventDefault();
+    const targetIdx = parseInt(e.currentTarget.dataset.gapIdx, 10);
+    moveStage(dragStageId, targetIdx);
+    clearDropIndicator();
+  }
+  function moveStage(stageId, targetIdx) {
+    const srcIdx = state.stages.findIndex(s => s.id === stageId);
+    if (srcIdx === -1) return;
+    const [stage] = state.stages.splice(srcIdx, 1);
+    if (srcIdx < targetIdx) targetIdx--;
+    state.stages.splice(targetIdx, 0, stage);
+    saveState();
+    render();
+  }
+
+  // ───────────── SHARE / IO ─────────────
+  async function copyShareLink() {
+    try {
+      const url = location.origin + location.pathname + '#state=' + encodeForUrl(state);
+      await navigator.clipboard.writeText(url);
+      flashBtn('btnShare', 'Link copied ✓');
+    } catch (e) {
+      // Fallback: show prompt
+      const url = location.origin + location.pathname + '#state=' + encodeForUrl(state);
+      prompt('Copy this share link:', url);
+    }
+  }
+  function flashBtn(id, text) {
+    const btn = document.getElementById(id);
+    const orig = btn.textContent;
+    btn.textContent = text;
+    btn.classList.add('flash');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('flash'); }, 1400);
+  }
+
+  function exportJson() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'creator-comms-flow.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function importJson() {
+    document.getElementById('fileInput').click();
+  }
+  function handleImportFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (parsed.version !== 1 || !Array.isArray(parsed.stages)) {
+          alert('Invalid file: expected version 1 with stages array.');
+          return;
+        }
+        // Validate channels
+        for (const s of parsed.stages) {
+          for (const c of (s.cards || [])) {
+            if (!CHANNEL_KEYS.includes(c.channel)) {
+              alert('Invalid file: unknown channel "' + c.channel + '"');
+              return;
+            }
+          }
+        }
+        if (!confirm('Replace current flow with imported one?')) return;
+        takeSnapshot('Imported flow');
+        state = parsed;
+        saveState();
+        render();
+        showToast();
+      } catch (e) {
+        alert('Failed to parse JSON: ' + e.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+  function resetToDefault() {
+    if (!confirm('Reset to default seed data? Your current flow will be replaced.')) return;
+    takeSnapshot('Reset to default');
+    state = clone(SEED);
+    saveState();
+    render();
+    showToast();
+  }
+
+  // ───────────── INIT ─────────────
+  function wireToolbar() {
+    document.getElementById('btnShare').onclick = copyShareLink;
+    document.getElementById('btnExport').onclick = exportJson;
+    document.getElementById('btnImport').onclick = importJson;
+    document.getElementById('btnReset').onclick = resetToDefault;
+    document.getElementById('fileInput').onchange = (e) => {
+      const f = e.target.files[0];
+      if (f) handleImportFile(f);
+      e.target.value = '';
+    };
+    document.getElementById('toastUndo').onclick = undo;
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.onclick = () => {
+        const type = chip.dataset.type;
+        if (activeChannels.has(type)) {
+          if (activeChannels.size === 1) return;
+          activeChannels.delete(type);
+          chip.classList.remove('active');
+        } else {
+          activeChannels.add(type);
+          chip.classList.add('active');
+        }
+        applyFilters();
+      };
+    });
+  }
+
+  function wireKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      // Cmd-Z / Ctrl-Z for undo
+      const meta = e.metaKey || e.ctrlKey;
+      if (meta && e.key === 'z' && !e.shiftKey) {
+        // Ignore if focus is in editable text
+        const ae = document.activeElement;
+        if (ae && (ae.isContentEditable || ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+        if (lastSnapshot) {
+          e.preventDefault();
+          undo();
+        }
+      }
+      // Esc closes popover
+      if (e.key === 'Escape') closePopover();
+    });
+  }
+
+  function wireOutsideClick() {
+    document.addEventListener('mousedown', (e) => {
+      const p = popoverEl();
+      if (p.hidden) return;
+      if (p.contains(e.target)) return;
+      // ignore clicks on triggers themselves; they handle re-open
+      if (e.target.closest('.card-type') || e.target.closest('.stage-circle')) return;
+      closePopover();
+    });
+  }
+
+  state = loadState();
+  render();
+  wireToolbar();
+  wireKeyboard();
+  wireOutsideClick();
+  </script>
+</body>
+</html>
