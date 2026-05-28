@@ -38,21 +38,20 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Sticky topbar ── */
-    .topbar {
+    /* ── Sticky header ── */
+    .sticky-header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(245, 245, 247, 0.85);
+      background: rgba(245, 245, 247, 0.86);
       backdrop-filter: saturate(180%) blur(16px);
       -webkit-backdrop-filter: saturate(180%) blur(16px);
       border-bottom: 1px solid transparent;
-      transition: border-color 0.2s, background 0.2s;
-      padding: 16px 32px;
+      transition: border-color 0.2s;
     }
-    .topbar.scrolled {
-      border-bottom-color: var(--hairline);
-    }
+    .sticky-header.scrolled { border-bottom-color: var(--hairline); }
+
+    .topbar { padding: 14px 32px 6px; }
     .topbar-inner {
       display: flex;
       align-items: center;
@@ -62,7 +61,7 @@
       max-width: 100%;
     }
     .topbar-title h1 {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       letter-spacing: -0.3px;
       line-height: 1.15;
@@ -70,7 +69,7 @@
     .topbar-title p {
       font-size: 12px;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .topbar-actions {
@@ -93,9 +92,9 @@
     .saved-indicator.show { opacity: 1; }
     .tool-divider {
       width: 1px;
-      align-self: stretch;
+      height: 22px;
       background: var(--hairline);
-      margin: 4px 4px;
+      margin: 0 3px;
     }
     .tool-btn {
       background: var(--surface);
@@ -134,16 +133,107 @@
       background: transparent;
       padding: 7px 9px;
     }
-    .tool-btn.ghost:hover { background: rgba(0,0,0,0.05); border-color: transparent; }
+    .tool-btn.ghost:hover:not(:disabled) { background: rgba(0,0,0,0.05); border-color: transparent; }
     .tool-btn.icon-only { padding: 7px; }
     .tool-btn.danger:hover { color: var(--danger); border-color: #FCA5A5; background: #FEF2F2; }
+
+    /* ── Flow tabs ── */
+    .flow-tabs {
+      display: flex;
+      align-items: stretch;
+      gap: 2px;
+      padding: 0 32px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .flow-tabs::-webkit-scrollbar { display: none; }
+    .flow-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 4px 11px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      position: relative;
+      transition: color 0.12s;
+      white-space: nowrap;
+      margin: 0 6px;
+    }
+    .flow-tab::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: transparent;
+      transition: background 0.15s;
+    }
+    .flow-tab:hover { color: var(--ink); }
+    .flow-tab.active { color: var(--ink); }
+    .flow-tab.active::after { background: var(--accent); }
+    .flow-tab .tab-name {
+      outline: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      margin: -2px 0;
+    }
+    .flow-tab .tab-name:focus { background: white; box-shadow: 0 0 0 2px var(--accent); }
+    .flow-tab-menu {
+      display: inline-flex;
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--muted-2);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.12s, background 0.12s;
+      font-family: inherit;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      margin-left: 2px;
+    }
+    .flow-tab:hover .flow-tab-menu,
+    .flow-tab.active .flow-tab-menu { opacity: 1; }
+    .flow-tab-menu:hover { background: rgba(0,0,0,0.08); color: var(--ink); }
+    .flow-tab-add {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted-2);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      font-family: inherit;
+      transition: background 0.12s, color 0.12s;
+      align-self: center;
+      margin-left: 4px;
+      gap: 3px;
+    }
+    .flow-tab-add:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--ink);
+    }
 
     /* ── Legend / filters ── */
     .legend {
       display: flex;
       align-items: center;
       gap: 7px;
-      padding: 18px 48px 26px;
+      padding: 18px 48px 24px;
       flex-wrap: wrap;
     }
     .legend-label {
@@ -194,6 +284,26 @@
       font-family: ui-monospace, Menlo, monospace;
       color: var(--muted);
       margin: 0 2px;
+    }
+
+    /* Flow description bar */
+    .flow-desc {
+      padding: 0 48px 14px;
+      font-size: 12.5px;
+      color: var(--muted);
+      max-width: 800px;
+      line-height: 1.45;
+      outline: none;
+      border-radius: 4px;
+      margin: -8px 48px 0;
+      padding: 4px 0 14px;
+    }
+    .flow-desc[contenteditable]:hover { background: rgba(0,0,0,0.02); }
+    .flow-desc[contenteditable]:focus { background: white; box-shadow: 0 0 0 2px var(--accent); padding-left: 6px; padding-right: 6px; }
+    .flow-desc:empty::before {
+      content: '+ Add flow description…';
+      color: #CDCDD0;
+      font-style: italic;
     }
 
     /* ── Scroll wrapper ── */
@@ -557,10 +667,12 @@
     .card-sender[data-sender="Account Manager"] { background: #EDE9FE; color: #5B21B6; }
     .card-sender[data-sender="Brand"] { background: #DBEAFE; color: #1E40AF; }
     .card-sender[data-sender="Automated"] { background: #ECFDF5; color: #047857; }
+    .card-sender[data-sender="Katie"] { background: #FCE7F3; color: #9D174D; }
     .card-sender[data-sender="Benny"]::before { content: '🐝 '; pointer-events: none; }
     .card-sender[data-sender="Account Manager"]::before { content: '👤 '; pointer-events: none; }
     .card-sender[data-sender="Brand"]::before { content: '🏢 '; pointer-events: none; }
     .card-sender[data-sender="Automated"]::before { content: '⚙ '; pointer-events: none; }
+    .card-sender[data-sender="Katie"]::before { content: '👋 '; pointer-events: none; }
 
     .card-desc {
       font-size: 11px;
@@ -611,7 +723,6 @@
       border-color: var(--danger);
     }
 
-    /* Note */
     .note {
       background: var(--warn-bg);
       border: 1.5px solid var(--warn-border);
@@ -623,7 +734,6 @@
       white-space: pre-wrap;
     }
 
-    /* Add card button */
     .add-card-btn {
       background: #FCFCFE;
       border: 1.5px dashed #D1D5DB;
@@ -648,7 +758,6 @@
       border-style: solid;
     }
 
-    /* Empty timeline */
     .empty-timeline {
       width: 100%;
       padding: 80px 48px;
@@ -670,7 +779,6 @@
       color: var(--primary);
     }
 
-    /* Drop indicator */
     .drop-indicator {
       height: 3px;
       background: var(--warn);
@@ -718,6 +826,7 @@
     }
     .popover-option:hover { background: var(--bg); }
     .popover-option.selected { background: var(--bg); font-weight: 600; }
+    .popover-option.danger { color: var(--danger); }
     .popover-option .channel-icon { display: inline-flex; }
     .popover-note {
       width: 100%;
@@ -799,7 +908,7 @@
     }
     .toast button:hover { background: rgba(255,255,255,0.1); }
 
-    /* ── Modal ── */
+    /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -811,10 +920,7 @@
       padding: 20px;
       animation: modalFade 0.18s ease-out;
     }
-    @keyframes modalFade {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
     .modal {
       background: white;
       border-radius: 14px;
@@ -901,7 +1007,6 @@
     .shortcut-grid .key { color: var(--muted); }
     .shortcut-grid .desc { color: var(--ink-2); }
 
-    /* Help / keyboard hint footer */
     .footer-hint {
       position: fixed;
       bottom: 18px;
@@ -926,26 +1031,31 @@
 </head>
 <body>
 
-  <header class="topbar" id="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-title">
-        <h1>Creator Communication Flow</h1>
-        <p>Benable Brand Portal · Editable timeline</p>
+  <div class="sticky-header" id="stickyHeader">
+    <header class="topbar" id="topbar">
+      <div class="topbar-inner">
+        <div class="topbar-title">
+          <h1>Creator Communication Flows</h1>
+          <p>Benable Brand Portal · Editable flow library</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="saved-indicator" id="savedIndicator">Saved</span>
+          <button class="tool-btn ghost icon-only" id="btnUndo" title="Undo (⌘Z)" disabled></button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn primary" id="btnShare" title="Copy a shareable URL"></button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn" id="btnExport" title="Download JSON"></button>
+          <button class="tool-btn" id="btnImport" title="Load JSON"></button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn ghost icon-only danger" id="btnReset" title="Reset to default"></button>
+          <button class="tool-btn ghost icon-only" id="btnHelp" title="Keyboard shortcuts"></button>
+        </div>
       </div>
-      <div class="topbar-actions">
-        <span class="saved-indicator" id="savedIndicator">Saved</span>
-        <button class="tool-btn ghost icon-only" id="btnUndo" title="Undo (⌘Z)" disabled></button>
-        <div class="tool-divider"></div>
-        <button class="tool-btn primary" id="btnShare" title="Copy a shareable URL"></button>
-        <div class="tool-divider"></div>
-        <button class="tool-btn" id="btnExport" title="Download JSON"></button>
-        <button class="tool-btn" id="btnImport" title="Load JSON"></button>
-        <div class="tool-divider"></div>
-        <button class="tool-btn ghost icon-only danger" id="btnReset" title="Reset to default"></button>
-        <button class="tool-btn ghost icon-only" id="btnHelp" title="Keyboard shortcuts"></button>
-      </div>
-    </div>
-  </header>
+    </header>
+    <div class="flow-tabs" id="flowTabs"></div>
+  </div>
+
+  <div class="flow-desc" id="flowDesc" contenteditable="true"></div>
 
   <div class="legend">
     <span class="legend-label">Channels</span>
@@ -966,6 +1076,7 @@
 
   <datalist id="senders">
     <option value="Benny"></option>
+    <option value="Katie"></option>
     <option value="Account Manager"></option>
     <option value="Brand"></option>
     <option value="Automated"></option>
@@ -996,107 +1107,213 @@
     help: `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.7 1.7 0 0 1 3.4 0c0 1.1-1 1.4-1.7 1.7v.5"/><circle cx="8" cy="11.3" r="0.55" fill="currentColor" stroke="none"/></svg>`,
     grip: `<svg viewBox="0 0 16 16" width="9" height="13" fill="currentColor"><circle cx="5" cy="4" r="1.05"/><circle cx="5" cy="8" r="1.05"/><circle cx="5" cy="12" r="1.05"/><circle cx="11" cy="4" r="1.05"/><circle cx="11" cy="8" r="1.05"/><circle cx="11" cy="12" r="1.05"/></svg>`,
     chev: `<svg viewBox="0 0 16 16" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 6l5 4 5-4"/></svg>`,
-    saved: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>`
+    saved: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>`,
+    close: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`
   };
 
-  // ───────────── SEED DATA ─────────────
+  // ───────────── SEED DATA (v2 — multi-flow) ─────────────
   const SEED = {
-    version: 1,
+    version: 2,
     channels: {
       email: { label: "Email",  color: "#3B82F6" },
       sms:   { label: "SMS",    color: "#10B981" },
       inapp: { label: "In-app", color: "#8B5CF6" },
       igdm:  { label: "IG DM",  color: "#E1306C" }
     },
-    stages: [
+    currentFlowId: "flow_portal",
+    flows: [
       {
-        id: "s1", name: "Invite Sent", subtitle: "Creator invited to the campaign",
-        kind: "primary", note: null, day: "Day 0",
-        cards: [
-          { id: "c1", channel: "email", name: "Campaign Invite", trigger: "On invite sent", sender: "Account Manager",
-            description: "Subject line includes creator name + brand name. Introduces the brand, campaign overview, and a clear CTA to accept via portal. Creator name personalisation is a top creator request." },
-          { id: "c2", channel: "inapp", name: "Invite Notification", trigger: "On invite sent", sender: "Automated",
-            description: "In-portal notification prompting creator to review and accept the campaign invite. Creators prefer this over email-only; both should fire simultaneously." }
+        id: "flow_portal",
+        name: "Portal Invite",
+        description: "Creator invited directly to the Benable Brand Portal. More aggressive cadence — these are matched to specific campaigns.",
+        stages: [
+          {
+            id: "sp1", name: "Invite Sent", subtitle: "Personalized portal invite",
+            kind: "primary", note: null, day: "Day 0",
+            cards: [
+              { id: "cp1", channel: "email", name: "Portal Invite",
+                trigger: "On invite",
+                sender: "Account Manager",
+                description: "Personalized invite with brand context, link to portal signup. Subject line includes creator name + brand name. Tony's note: name personalisation is a top creator request." }
+            ]
+          },
+          {
+            id: "sp2", name: "Next-Day Follow-up", subtitle: "Sent next morning, 9:30–10:30 AM PT",
+            kind: "primary",
+            note: "Branches by engagement: not-viewed and viewed-no-action get the same generic text; partial completion gets a different, warmer one.",
+            day: "Day 1",
+            cards: [
+              { id: "cp2a", channel: "sms", name: "Just Following Up",
+                trigger: "Next morning · if not viewed OR viewed without clicks",
+                sender: "Benny",
+                description: "Short SMS nudging the creator to check their invite. Direct link to the portal.\n\nAlways sent next morning between 9:30–10:30 AM PT — never same evening, to avoid 4:30 PM invite → 4:30 AM text scenarios." },
+              { id: "cp2b", channel: "sms", name: "Saw You Started",
+                trigger: "Next morning · if partial completion (clicked Next, filled some fields)",
+                sender: "Benny",
+                description: "Hey, saw you started your application — let us know if you have any questions or if we can help with anything. Warmer than the generic follow-up; acknowledges effort already made." }
+            ]
+          },
+          {
+            id: "sp3", name: "Mid-Onboarding Drop-off", subtitle: "Started but didn't finish",
+            kind: "branch",
+            note: "Time-based on drop-off event, not invite send. More aggressive than Day-1 follow-up because they're already in motion.",
+            day: "Same day or next AM",
+            cards: [
+              { id: "cp3", channel: "sms", name: "Mid-Flow Nudge",
+                trigger: "3hr after drop-off, business hours only; else next day 9:30–10:30 AM PT",
+                sender: "Benny",
+                description: "Hits while the application is still fresh in their mind. Picks the average return-time from analytics as the wait window. Direct link back to where they left off." }
+            ]
+          },
+          {
+            id: "sp4", name: "3-Day Reminder", subtitle: "More pressing email tone",
+            kind: "primary", note: null, day: "Day 3 (business)",
+            cards: [
+              { id: "cp4", channel: "email", name: "Still Incomplete Reminder",
+                trigger: "3 business days after invite, still not complete",
+                sender: "Account Manager",
+                description: "Slightly more pressing than the original invite. Reminds them of the opportunity and the brand. Final automated touch before the close-out message." }
+            ]
+          },
+          {
+            id: "sp5", name: "Final Close-out", subtitle: "Last touch before marking inactive",
+            kind: "branch",
+            note: "⚠ Marks creator as 'not interested' if no response after this. ~10–13 days after initial invite — past the 'on vacation' window.",
+            day: "Day 10–13",
+            cards: [
+              { id: "cp5", channel: "sms", name: "Last Chance",
+                trigger: "1 week after the 3-day email reminder, still no completion",
+                sender: "Katie",
+                description: "Hey, we haven't heard back — just letting you know we're going to mark you as not interested. Reach out anytime if that changes. Soft tone; closes the loop without burning the relationship." }
+            ]
+          }
         ]
       },
       {
-        id: "s2", name: "No Response", subtitle: "Conditional — if no reply after invite",
-        kind: "branch",
-        note: "⚠ Auto-archive at Day 7\nNo response after 7 days triggers auto-archive. Archive reason is recorded. Creator returns to general pool.",
-        day: "Day 1–7",
-        cards: [
-          { id: "c3", channel: "sms", name: "Follow-up Nudge", trigger: "12–24h after invite", sender: "Benny",
-            description: "Short text nudge reminding creator to check their invite. Sent via Benny when no portal response is detected within 12–24 hours." },
-          { id: "c4", channel: "email", name: "Monetary Component", trigger: "Day 3–4, still no response", sender: "Account Manager",
-            description: "Follow-up email introducing an added incentive or value signal. Final outreach before auto-archive triggers on Day 7." }
+        id: "flow_waitlist",
+        name: "Waitlist Invite",
+        description: "Less aggressive flow for creators invited to the waitlist (not yet matched to a campaign). Slower cadence, softer tone.",
+        stages: [
+          {
+            id: "sw1", name: "Invite Sent", subtitle: "Waitlist invite email",
+            kind: "primary", note: null, day: "Day 0",
+            cards: [
+              { id: "cw1", channel: "email", name: "Waitlist Invite",
+                trigger: "On invite",
+                sender: "Account Manager",
+                description: "Intro to Benable, what the brand portal offers, and how the waitlist works. No urgency — sets expectations that opportunities come when there's a fit." }
+            ]
+          },
+          {
+            id: "sw2", name: "Mid-Onboarding Drop-off", subtitle: "Started but didn't finish",
+            kind: "branch",
+            note: "Same drop-off logic as portal flow — only fires during business hours, casual tone.",
+            day: "Same day or next AM",
+            cards: [
+              { id: "cw2", channel: "sms", name: "Mid-Flow Nudge",
+                trigger: "3hr after drop-off, business hours only; else next day 9:30–10:30 AM PT",
+                sender: "Benny",
+                description: "Direct link back to where they left off. No pressure — softer than the portal version. Same template as Portal Invite drop-off." }
+            ]
+          },
+          {
+            id: "sw3", name: "3-Day Soft Nudge", subtitle: "Friendly heads-up",
+            kind: "primary", note: null, day: "Day 3",
+            cards: [
+              { id: "cw3", channel: "sms", name: "No Rush Nudge",
+                trigger: "3 days after invite, still incomplete",
+                sender: "Benny",
+                description: "Hey, no rush — just a heads up your waitlist application is still open. Friendly, no urgency. Single text only (vs. portal's two)." }
+            ]
+          },
+          {
+            id: "sw4", name: "Final Reminder", subtitle: "Last email",
+            kind: "branch",
+            note: "⚠ Closes the loop — marks creator inactive on the waitlist.",
+            day: "Day 10 (1 wk after text)",
+            cards: [
+              { id: "cw4", channel: "email", name: "Final Waitlist Reminder",
+                trigger: "1 week after the SMS, still nothing",
+                sender: "Account Manager",
+                description: "Friendly final reminder. \"We haven't heard from you — let us know if you're still interested, otherwise we'll mark this as inactive.\" Sent a full week after the SMS to give vacation buffer." }
+            ]
+          }
         ]
       },
       {
-        id: "s3", name: "Accepted", subtitle: "Invite accepted, onboarding begins",
-        kind: "primary", note: null, day: "Day 0–2",
-        cards: [
-          { id: "c5", channel: "email", name: "Onboarding Welcome", trigger: "On acceptance", sender: "Automated",
-            description: "Guides creator through completing their profile: collaboration preferences, gifted campaign openness, small brand willingness, and platform preferences." },
-          { id: "c6", channel: "inapp", name: "Profile Setup Flow", trigger: "On acceptance", sender: "Automated",
-            description: "Onboarding flow capturing: content type preference (social / UGC / both), gifted openness, small brand willingness, dream collaborations, and platform preferences." },
-          { id: "c7", channel: "inapp", name: "Shipping Address Prompt", trigger: "During onboarding", sender: "Automated",
-            description: "Must be visually prominent — multiple creators missed this step in early testing. Asks creator to enter or confirm their shipping address before campaign proceeds." }
-        ]
-      },
-      {
-        id: "s4", name: "Campaign Brief", subtitle: "Matched to a brand campaign",
-        kind: "primary", note: null, day: "Day 2–3",
-        cards: [
-          { id: "c8", channel: "email", name: "Campaign Brief", trigger: "On campaign assignment", sender: "Account Manager",
-            description: "Brand overview, content requirements, posting platform, usage rights scope + duration (must be explicit — confusion caused campaign declines), posting timeline, and minimum gift value." },
-          { id: "c9", channel: "inapp", name: "Campaign Card", trigger: "On campaign assignment", sender: "Automated",
-            description: "In-portal campaign card showing brief, deliverables, deadline, gifted product details, brand contact, and usage rights. Surfaced alongside creator's collaboration preferences for easy comparison." }
-        ]
-      },
-      {
-        id: "s5", name: "Product Sent", subtitle: "Gifted product in transit",
-        kind: "primary", note: null, day: "Day 3–7",
-        cards: [
-          { id: "c10", channel: "email", name: "Shipping Confirmation", trigger: "When product ships", sender: "Automated",
-            description: "Shipping details and tracking info for gifted product(s). Includes expected arrival date and handling notes if relevant (e.g. fragile, perishable)." },
-          { id: "c11", channel: "inapp", name: "Product Received Check-in", trigger: "On expected delivery date", sender: "Automated",
-            description: "Prompt asking creator to confirm product arrival and flag any issues. Triggers support flow if wrong item, damaged, or not received." }
-        ]
-      },
-      {
-        id: "s6", name: "Deadline", subtitle: "Posting deadline approaching",
-        kind: "primary", note: null, day: "Day 10–14",
-        cards: [
-          { id: "c12", channel: "inapp", name: "Deadline Reminder", trigger: "72h before deadline", sender: "Automated",
-            description: "Portal banner showing days remaining to post, content requirements recap, and link to submission instructions." },
-          { id: "c13", channel: "email", name: "Deadline Reminder", trigger: "48h before deadline", sender: "Automated",
-            description: "Email reminder with posting deadline, content requirements, and how to submit. Note: skincare/makeup creators may need 1+ week for results — this should be accounted for in brief timing." },
-          { id: "c14", channel: "sms", name: "Final Nudge", trigger: "24h before deadline", sender: "Benny",
-            description: "Short SMS for creators who haven't yet posted. Direct link to campaign brief in portal." }
-        ]
-      },
-      {
-        id: "s7", name: "Content Review", subtitle: "Submitted, under compliance review",
-        kind: "primary", note: null, day: "Day 14–16",
-        cards: [
-          { id: "c15", channel: "inapp", name: "Submission Received", trigger: "On content submission", sender: "Automated",
-            description: "Confirmation that content has been logged and is under compliance review. Shows estimated review timeframe." },
-          { id: "c16", channel: "email", name: "Content Approved ✓", trigger: "On approval", sender: "Automated",
-            description: "Confirmation that content meets campaign requirements and compliance guidelines. Campaign closes from creator's perspective." },
-          { id: "c17", channel: "email", name: "Revision Requested", trigger: "If revision required", sender: "Account Manager",
-            description: "Specific feedback on what needs to change, with a resubmission deadline clearly stated." }
-        ]
-      },
-      {
-        id: "s8", name: "Complete", subtitle: "Campaign wrapped",
-        kind: "primary", note: null, day: "Day 16+",
-        cards: [
-          { id: "c18", channel: "email", name: "Campaign Thank You", trigger: "On campaign close", sender: "Account Manager",
-            description: "Wrap-up email thanking the creator for participating. Highlights brand appreciation. Long-term relationship signals (early product access, PR lists) are a key differentiator for creator retention." },
-          { id: "c19", channel: "inapp", name: "Rate Your Experience", trigger: "After campaign close", sender: "Automated",
-            description: "Optional creator feedback prompt on the campaign and brand experience. Feeds back into matching quality." },
-          { id: "c20", channel: "email", name: "Next Campaign Invite", trigger: "Post-campaign, high-performers only", sender: "Account Manager",
-            description: "Early access invite to upcoming campaigns. Sent to high-scoring creators as a loyalty and retention signal. Reinforces long-term relationship value." }
+        id: "flow_lifecycle",
+        name: "Campaign Lifecycle",
+        description: "End-to-end campaign flow once a creator is matched and active — from brief through wrap-up.",
+        stages: [
+          {
+            id: "sl1", name: "Campaign Brief", subtitle: "Matched to a brand campaign",
+            kind: "primary", note: null, day: "Day 0",
+            cards: [
+              { id: "cl1", channel: "email", name: "Campaign Brief",
+                trigger: "On campaign assignment", sender: "Account Manager",
+                description: "Brand overview, content requirements, posting platform, usage rights scope + duration (must be explicit — confusion caused campaign declines), posting timeline, and minimum gift value." },
+              { id: "cl2", channel: "inapp", name: "Campaign Card",
+                trigger: "On campaign assignment", sender: "Automated",
+                description: "In-portal campaign card showing brief, deliverables, deadline, gifted product details, brand contact, and usage rights." }
+            ]
+          },
+          {
+            id: "sl2", name: "Product Sent", subtitle: "Gifted product in transit",
+            kind: "primary", note: null, day: "Day 0–4",
+            cards: [
+              { id: "cl3", channel: "email", name: "Shipping Confirmation",
+                trigger: "When product ships", sender: "Automated",
+                description: "Shipping details and tracking info. Expected arrival date and handling notes if relevant (e.g. fragile, perishable)." },
+              { id: "cl4", channel: "inapp", name: "Product Received Check-in",
+                trigger: "On expected delivery date", sender: "Automated",
+                description: "Prompt asking creator to confirm product arrival and flag any issues. Triggers support flow if wrong item, damaged, or not received." }
+            ]
+          },
+          {
+            id: "sl3", name: "Deadline", subtitle: "Posting deadline approaching",
+            kind: "primary", note: null, day: "Day 7–11",
+            cards: [
+              { id: "cl5", channel: "inapp", name: "Deadline Reminder",
+                trigger: "72h before deadline", sender: "Automated",
+                description: "Portal banner showing days remaining to post, content requirements recap, and link to submission instructions." },
+              { id: "cl6", channel: "email", name: "Deadline Reminder",
+                trigger: "48h before deadline", sender: "Automated",
+                description: "Email reminder with posting deadline, content requirements, and how to submit. Note: skincare/makeup creators may need 1+ week for results — account for in brief timing." },
+              { id: "cl7", channel: "sms", name: "Final Nudge",
+                trigger: "24h before deadline", sender: "Benny",
+                description: "Short SMS for creators who haven't yet posted. Direct link to campaign brief in portal." }
+            ]
+          },
+          {
+            id: "sl4", name: "Content Review", subtitle: "Submitted, under compliance review",
+            kind: "primary", note: null, day: "Day 11–14",
+            cards: [
+              { id: "cl8", channel: "inapp", name: "Submission Received",
+                trigger: "On content submission", sender: "Automated",
+                description: "Confirmation that content has been logged and is under compliance review. Shows estimated review timeframe." },
+              { id: "cl9", channel: "email", name: "Content Approved ✓",
+                trigger: "On approval", sender: "Automated",
+                description: "Content meets requirements + compliance. Campaign closes from creator's perspective." },
+              { id: "cl10", channel: "email", name: "Revision Requested",
+                trigger: "If revision required", sender: "Account Manager",
+                description: "Specific feedback on what needs to change, with a clear resubmission deadline." }
+            ]
+          },
+          {
+            id: "sl5", name: "Complete", subtitle: "Campaign wrapped",
+            kind: "primary", note: null, day: "Day 14+",
+            cards: [
+              { id: "cl11", channel: "email", name: "Campaign Thank You",
+                trigger: "On campaign close", sender: "Account Manager",
+                description: "Wrap-up thanking the creator. Highlights brand appreciation. Long-term relationship signals (early product access, PR lists) are key for retention." },
+              { id: "cl12", channel: "inapp", name: "Rate Your Experience",
+                trigger: "After campaign close", sender: "Automated",
+                description: "Optional creator feedback prompt on the campaign and brand. Feeds back into matching quality." },
+              { id: "cl13", channel: "email", name: "Next Campaign Invite",
+                trigger: "Post-campaign, high-performers only", sender: "Account Manager",
+                description: "Early access to upcoming campaigns for high-scoring creators. Loyalty + retention signal." }
+            ]
+          }
         ]
       }
     ]
@@ -1119,8 +1336,30 @@
   }
 
   function migrate(s) {
-    // Make sure all stages have a `day` field (added in v1.1)
-    s.stages.forEach(st => { if (!('day' in st)) st.day = null; });
+    if (s.version === 1 && Array.isArray(s.stages)) {
+      const flow = {
+        id: 'flow_legacy_' + Date.now(),
+        name: 'My Flow',
+        description: 'Imported from v1',
+        stages: s.stages.map(st => ({ ...st, day: st.day || null }))
+      };
+      return {
+        version: 2,
+        channels: s.channels,
+        currentFlowId: flow.id,
+        flows: [flow]
+      };
+    }
+    if (s.version === 2 && Array.isArray(s.flows)) {
+      s.flows.forEach(f => {
+        if (!('description' in f)) f.description = '';
+        f.stages.forEach(st => { if (!('day' in st)) st.day = null; });
+      });
+      if (!s.currentFlowId || !s.flows.find(f => f.id === s.currentFlowId)) {
+        s.currentFlowId = s.flows[0]?.id || null;
+      }
+      return s;
+    }
     return s;
   }
 
@@ -1128,7 +1367,7 @@
     if (location.hash.startsWith('#state=')) {
       try {
         const decoded = decodeFromUrl(location.hash.slice('#state='.length));
-        if (decoded && decoded.version === 1 && Array.isArray(decoded.stages)) {
+        if (decoded && (decoded.version === 1 || decoded.version === 2)) {
           history.replaceState(null, '', location.pathname + location.search);
           return migrate(decoded);
         }
@@ -1138,7 +1377,7 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.version === 1 && Array.isArray(parsed.stages)) return migrate(parsed);
+        if (parsed.version === 1 || parsed.version === 2) return migrate(parsed);
       }
     } catch (e) { console.warn('Bad localStorage state', e); }
     return clone(SEED);
@@ -1178,9 +1417,17 @@
   }
 
   // ───────────── LOOKUPS ─────────────
-  function findStage(stageId) { return state.stages.find(s => s.id === stageId); }
+  function currentFlow() {
+    return state.flows.find(f => f.id === state.currentFlowId) || state.flows[0];
+  }
+  function findStage(stageId) {
+    const f = currentFlow();
+    return f && f.stages.find(s => s.id === stageId);
+  }
   function findCard(cardId) {
-    for (const s of state.stages) {
+    const f = currentFlow();
+    if (!f) return null;
+    for (const s of f.stages) {
       const c = s.cards.find(c => c.id === cardId);
       if (c) return { card: c, stage: s };
     }
@@ -1189,10 +1436,60 @@
 
   // ───────────── RENDER ─────────────
   function render() {
+    renderFlowTabs();
+    renderFlowDesc();
+    renderTimeline();
+  }
+
+  function renderFlowTabs() {
+    const container = document.getElementById('flowTabs');
+    container.innerHTML = '';
+    state.flows.forEach(flow => {
+      const tab = document.createElement('div');
+      tab.className = 'flow-tab' + (flow.id === state.currentFlowId ? ' active' : '');
+      tab.dataset.flowId = flow.id;
+      const name = document.createElement('span');
+      name.className = 'tab-name';
+      name.textContent = flow.name;
+      name.ondblclick = (e) => { e.stopPropagation(); makeFlowNameEditable(name, flow.id); };
+      tab.appendChild(name);
+
+      const menu = document.createElement('button');
+      menu.className = 'flow-tab-menu';
+      menu.innerHTML = '⋯';
+      menu.title = 'Flow options';
+      menu.onclick = (e) => { e.stopPropagation(); e.preventDefault(); openFlowMenu(menu, flow.id); };
+      tab.appendChild(menu);
+
+      tab.onclick = (e) => {
+        if (e.target.closest('.flow-tab-menu')) return;
+        if (e.target.closest('.tab-name') && name.contentEditable === 'true') return;
+        switchFlow(flow.id);
+      };
+      container.appendChild(tab);
+    });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'flow-tab-add';
+    addBtn.innerHTML = '<span style="font-size:14px;line-height:1">+</span> New flow';
+    addBtn.onclick = addNewFlow;
+    container.appendChild(addBtn);
+  }
+
+  function renderFlowDesc() {
+    const f = currentFlow();
+    const el = document.getElementById('flowDesc');
+    el.textContent = f?.description || '';
+  }
+
+  function renderTimeline() {
     const tl = document.getElementById('timeline');
     tl.innerHTML = '';
 
-    if (state.stages.length === 0) {
+    const f = currentFlow();
+    if (!f) { updateCounts(); return; }
+
+    if (f.stages.length === 0) {
       const wrap = document.createElement('div');
       wrap.className = 'empty-timeline';
       const btn = document.createElement('button');
@@ -1205,12 +1502,12 @@
     }
 
     let primaryCounter = 0;
-    state.stages.forEach((stage, i) => {
+    f.stages.forEach((stage, i) => {
       tl.appendChild(renderGap(i));
       const stageLabel = stage.kind === 'primary' ? (++primaryCounter) : '!';
       tl.appendChild(renderStage(stage, i, stageLabel));
     });
-    tl.appendChild(renderGap(state.stages.length));
+    tl.appendChild(renderGap(f.stages.length));
 
     updateCounts();
     applyFilters();
@@ -1242,7 +1539,7 @@
     const del = document.createElement('button');
     del.className = 'stage-delete';
     del.title = 'Delete stage';
-    del.innerHTML = `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
+    del.innerHTML = ICONS.close;
     del.onclick = (e) => { e.stopPropagation(); deleteStage(stage.id); };
     col.appendChild(del);
 
@@ -1371,7 +1668,7 @@
     const del = document.createElement('button');
     del.className = 'card-delete';
     del.title = 'Delete card';
-    del.innerHTML = `<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
+    del.innerHTML = ICONS.close;
     del.onclick = (e) => { e.stopPropagation(); deleteCard(card.id); };
     el.appendChild(del);
 
@@ -1382,18 +1679,21 @@
   }
 
   function updateCounts() {
+    const f = currentFlow();
     CHANNEL_KEYS.forEach(type => {
       const count = countCards(type);
       const cnt = document.querySelector('.chip.' + type + ' .cnt');
       if (cnt) cnt.textContent = count;
     });
-    const total = state.stages.reduce((acc, s) => acc + s.cards.length, 0);
+    const total = f ? f.stages.reduce((acc, s) => acc + s.cards.length, 0) : 0;
     document.getElementById('total-count').textContent = total;
-    document.getElementById('stage-count').textContent = state.stages.length;
+    document.getElementById('stage-count').textContent = f ? f.stages.length : 0;
   }
   function countCards(type) {
+    const f = currentFlow();
+    if (!f) return 0;
     let c = 0;
-    state.stages.forEach(s => s.cards.forEach(card => { if (card.channel === type) c++; }));
+    f.stages.forEach(s => s.cards.forEach(card => { if (card.channel === type) c++; }));
     return c;
   }
   function applyFilters() {
@@ -1428,6 +1728,24 @@
     });
     el.addEventListener('dragstart', (e) => { e.stopPropagation(); e.preventDefault(); });
     el.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+  }
+
+  // Flow description editor binding (separate because it's outside renderCard)
+  function wireFlowDesc() {
+    const el = document.getElementById('flowDesc');
+    let original = '';
+    el.addEventListener('focus', () => { original = currentFlow()?.description || ''; });
+    el.addEventListener('blur', () => {
+      const v = el.textContent.trim();
+      const f = currentFlow();
+      if (f && v !== (f.description || '')) {
+        f.description = v;
+        saveState();
+      }
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { el.textContent = original; el.blur(); }
+    });
   }
 
   // ───────────── POPOVERS ─────────────
@@ -1475,7 +1793,7 @@
       opt.onclick = () => {
         card.channel = key;
         saveState();
-        render();
+        renderTimeline();
         closePopover();
       };
       sec.appendChild(opt);
@@ -1505,7 +1823,7 @@
       btn.onclick = () => {
         stage.kind = k;
         saveState();
-        render();
+        renderTimeline();
         closePopover();
       };
       kindRow.appendChild(btn);
@@ -1554,7 +1872,139 @@
     }
   }
 
-  // ───────────── MUTATIONS ─────────────
+  function openFlowMenu(anchor, flowId) {
+    const p = popoverEl();
+    p.innerHTML = '';
+    const sec = document.createElement('div');
+    sec.className = 'popover-section';
+
+    const renameOpt = document.createElement('div');
+    renameOpt.className = 'popover-option';
+    renameOpt.textContent = '✏️  Rename';
+    renameOpt.onclick = () => {
+      closePopover();
+      const tab = document.querySelector(`.flow-tab[data-flow-id="${flowId}"] .tab-name`);
+      if (tab) makeFlowNameEditable(tab, flowId);
+    };
+    sec.appendChild(renameOpt);
+
+    const dupOpt = document.createElement('div');
+    dupOpt.className = 'popover-option';
+    dupOpt.textContent = '📋  Duplicate';
+    dupOpt.onclick = () => { closePopover(); duplicateFlow(flowId); };
+    sec.appendChild(dupOpt);
+
+    if (state.flows.length > 1) {
+      const delOpt = document.createElement('div');
+      delOpt.className = 'popover-option danger';
+      delOpt.textContent = '🗑  Delete flow';
+      delOpt.onclick = () => { closePopover(); deleteFlow(flowId); };
+      sec.appendChild(delOpt);
+    }
+
+    p.appendChild(sec);
+    openPopoverAt(anchor);
+  }
+
+  // ───────────── FLOW MUTATIONS ─────────────
+  function switchFlow(flowId) {
+    if (state.currentFlowId === flowId) return;
+    state.currentFlowId = flowId;
+    saveState();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function addNewFlow() {
+    const newFlow = {
+      id: makeId('flow'),
+      name: 'New flow',
+      description: '',
+      stages: []
+    };
+    state.flows.push(newFlow);
+    state.currentFlowId = newFlow.id;
+    saveState();
+    render();
+    setTimeout(() => {
+      const tab = document.querySelector(`.flow-tab[data-flow-id="${newFlow.id}"] .tab-name`);
+      if (tab) makeFlowNameEditable(tab, newFlow.id);
+    }, 30);
+  }
+  async function deleteFlow(flowId) {
+    if (state.flows.length === 1) {
+      await alertModal({ title: "Can't delete the last flow", body: 'You need at least one flow.' });
+      return;
+    }
+    const flow = state.flows.find(f => f.id === flowId);
+    if (!flow) return;
+    const stageCount = flow.stages.length;
+    if (stageCount > 0) {
+      const ok = await confirmModal({
+        title: `Delete "${escapeHtml(flow.name)}"?`,
+        body: `This flow has ${stageCount} stage${stageCount === 1 ? '' : 's'}. Deleting is undoable from the toolbar.`,
+        confirmLabel: 'Delete flow',
+        danger: true
+      });
+      if (!ok) return;
+    }
+    takeSnapshot(`Deleted flow "${flow.name}"`);
+    state.flows = state.flows.filter(f => f.id !== flowId);
+    if (state.currentFlowId === flowId) {
+      state.currentFlowId = state.flows[0].id;
+    }
+    saveState();
+    render();
+    showToast();
+  }
+  function duplicateFlow(flowId) {
+    const flow = state.flows.find(f => f.id === flowId);
+    if (!flow) return;
+    const copy = clone(flow);
+    copy.id = makeId('flow');
+    copy.name = flow.name + ' copy';
+    copy.stages.forEach(s => {
+      s.id = makeId('s');
+      s.cards.forEach(c => { c.id = makeId('c'); });
+    });
+    const idx = state.flows.findIndex(f => f.id === flowId);
+    state.flows.splice(idx + 1, 0, copy);
+    state.currentFlowId = copy.id;
+    saveState();
+    render();
+    setTimeout(() => {
+      const tab = document.querySelector(`.flow-tab[data-flow-id="${copy.id}"] .tab-name`);
+      if (tab) makeFlowNameEditable(tab, copy.id);
+    }, 50);
+  }
+  function makeFlowNameEditable(el, flowId) {
+    el.contentEditable = 'true';
+    el.focus();
+    selectAll(el);
+    const flow = state.flows.find(f => f.id === flowId);
+    if (!flow) return;
+    const original = flow.name;
+    const finish = (save) => {
+      el.contentEditable = 'false';
+      const v = el.textContent.trim();
+      if (save && v && v !== original) {
+        flow.name = v;
+        saveState();
+      } else {
+        el.textContent = original;
+      }
+      el.removeEventListener('blur', onBlur);
+      el.removeEventListener('keydown', onKey);
+    };
+    const onBlur = () => finish(true);
+    const onKey = (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+      else if (e.key === 'Escape') { finish(false); }
+    };
+    el.addEventListener('blur', onBlur);
+    el.addEventListener('keydown', onKey);
+  }
+
+  // ───────────── STAGE / CARD MUTATIONS ─────────────
   function addCard(stageId) {
     const stage = findStage(stageId);
     if (!stage) return;
@@ -1568,7 +2018,7 @@
     };
     stage.cards.push(newCard);
     saveState();
-    render();
+    renderTimeline();
     setTimeout(() => {
       const el = document.querySelector('.card[data-card-id="' + newCard.id + '"] .card-name');
       if (el) { el.focus(); selectAll(el); }
@@ -1581,12 +2031,13 @@
     takeSnapshot('Deleted "' + (found.card.name || 'card') + '"');
     found.stage.cards = found.stage.cards.filter(c => c.id !== cardId);
     saveState();
-    render();
+    renderTimeline();
     showToast();
-    updateUndoBtn();
   }
 
   function addStage(idx) {
+    const f = currentFlow();
+    if (!f) return;
     const newStage = {
       id: makeId('s'),
       name: 'New stage',
@@ -1596,9 +2047,9 @@
       day: null,
       cards: []
     };
-    state.stages.splice(idx, 0, newStage);
+    f.stages.splice(idx, 0, newStage);
     saveState();
-    render();
+    renderTimeline();
     setTimeout(() => {
       const el = document.querySelector('.stage[data-stage-id="' + newStage.id + '"] .stage-name');
       if (el) { el.focus(); selectAll(el); }
@@ -1618,11 +2069,11 @@
       if (!ok) return;
     }
     takeSnapshot('Deleted stage "' + (stage.name || 'stage') + '"');
-    state.stages = state.stages.filter(s => s.id !== stageId);
+    const f = currentFlow();
+    f.stages = f.stages.filter(s => s.id !== stageId);
     saveState();
-    render();
+    renderTimeline();
     showToast();
-    updateUndoBtn();
   }
 
   function selectAll(el) {
@@ -1667,12 +2118,8 @@
   }
 
   // ───────────── DRAG & DROP ─────────────
-  let dragKind = null;
-  let dragCardId = null;
-  let dragCardStageId = null;
-  let dragStageId = null;
-  let currentDropIndicator = null;
-  let highlightedGap = null;
+  let dragKind = null, dragCardId = null, dragCardStageId = null, dragStageId = null;
+  let currentDropIndicator = null, highlightedGap = null;
 
   function onCardDragStart(e, cardId, stageId, el) {
     dragKind = 'card';
@@ -1731,14 +2178,8 @@
     currentDropIndicator = ind;
   }
   function clearDropIndicator() {
-    if (currentDropIndicator) {
-      currentDropIndicator.remove();
-      currentDropIndicator = null;
-    }
-    if (highlightedGap) {
-      highlightedGap.classList.remove('drop-target');
-      highlightedGap = null;
-    }
+    if (currentDropIndicator) { currentDropIndicator.remove(); currentDropIndicator = null; }
+    if (highlightedGap) { highlightedGap.classList.remove('drop-target'); highlightedGap = null; }
   }
   function moveCard(cardId, fromStageId, toStageId, targetIdx) {
     const fromStage = findStage(fromStageId);
@@ -1750,9 +2191,8 @@
     if (fromStageId === toStageId && srcIdx < targetIdx) targetIdx--;
     toStage.cards.splice(targetIdx, 0, card);
     saveState();
-    render();
+    renderTimeline();
   }
-
   function onStageDragStart(e, stageId, col) {
     dragKind = 'stage';
     dragStageId = stageId;
@@ -1788,13 +2228,14 @@
     clearDropIndicator();
   }
   function moveStage(stageId, targetIdx) {
-    const srcIdx = state.stages.findIndex(s => s.id === stageId);
+    const f = currentFlow();
+    const srcIdx = f.stages.findIndex(s => s.id === stageId);
     if (srcIdx === -1) return;
-    const [stage] = state.stages.splice(srcIdx, 1);
+    const [stage] = f.stages.splice(srcIdx, 1);
     if (srcIdx < targetIdx) targetIdx--;
-    state.stages.splice(targetIdx, 0, stage);
+    f.stages.splice(targetIdx, 0, stage);
     saveState();
-    render();
+    renderTimeline();
   }
 
   // ───────────── MODAL ─────────────
@@ -1821,7 +2262,6 @@
       const cleanup = (val) => { overlay.remove(); document.removeEventListener('keydown', escHandler); resolve(val); };
       const escHandler = (e) => { if (e.key === 'Escape') cleanup(null); };
       document.addEventListener('keydown', escHandler);
-
       actions.forEach(a => {
         const btn = document.createElement('button');
         btn.className = 'modal-btn' + (a.primary ? ' primary' : '') + (a.danger ? ' danger' : '');
@@ -1830,11 +2270,9 @@
         actionsRow.appendChild(btn);
       });
       modal.appendChild(actionsRow);
-
       overlay.appendChild(modal);
       overlay.addEventListener('click', e => { if (e.target === overlay) cleanup(null); });
       document.getElementById('modalRoot').appendChild(overlay);
-
       const primary = actionsRow.querySelector('.modal-btn.primary, .modal-btn.danger');
       if (primary) setTimeout(() => primary.focus(), 50);
     });
@@ -1849,12 +2287,8 @@
     });
   }
   function alertModal({ title, body }) {
-    return showModal({
-      title, body,
-      actions: [{ label: 'OK', value: true, primary: true }]
-    });
+    return showModal({ title, body, actions: [{ label: 'OK', value: true, primary: true }] });
   }
-
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   }
@@ -1879,13 +2313,12 @@
     btn.classList.add('flash');
     setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('flash'); }, 1400);
   }
-
   function exportJson() {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'creator-comms-flow.json';
+    a.download = 'benable-comms-flows.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1898,27 +2331,31 @@
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      if (parsed.version !== 1 || !Array.isArray(parsed.stages)) {
-        await alertModal({ title: 'Invalid file', body: 'Expected <code>version: 1</code> with a <code>stages</code> array.' });
+      if (parsed.version !== 1 && parsed.version !== 2) {
+        await alertModal({ title: 'Invalid file', body: 'Expected <code>version: 1</code> or <code>version: 2</code>.' });
         return;
       }
-      for (const s of parsed.stages) {
-        for (const c of (s.cards || [])) {
-          if (!CHANNEL_KEYS.includes(c.channel)) {
-            await alertModal({ title: 'Invalid file', body: `Unknown channel "<code>${escapeHtml(c.channel)}</code>" in card "${escapeHtml(c.name)}".` });
-            return;
+      const migrated = migrate(parsed);
+      // Validate channels in all flows
+      for (const f of migrated.flows) {
+        for (const s of f.stages) {
+          for (const c of (s.cards || [])) {
+            if (!CHANNEL_KEYS.includes(c.channel)) {
+              await alertModal({ title: 'Invalid file', body: `Unknown channel "<code>${escapeHtml(c.channel)}</code>" in card "${escapeHtml(c.name)}".` });
+              return;
+            }
           }
         }
       }
       const ok = await confirmModal({
-        title: 'Replace current flow?',
-        body: 'Your current state will be replaced with the imported flow. This is undoable.',
+        title: 'Replace all flows?',
+        body: 'Your current state will be replaced with the imported flows. This is undoable.',
         confirmLabel: 'Replace',
         danger: false
       });
       if (!ok) return;
-      takeSnapshot('Imported flow');
-      state = migrate(parsed);
+      takeSnapshot('Imported flows');
+      state = migrated;
       saveState();
       render();
       showToast();
@@ -1929,7 +2366,7 @@
   async function resetToDefault() {
     const ok = await confirmModal({
       title: 'Reset to default?',
-      body: 'Your current flow will be replaced with the original seed data. You can undo right after.',
+      body: 'Your current flows will be replaced with the original seed (Portal Invite, Waitlist Invite, Campaign Lifecycle). You can undo right after.',
       confirmLabel: 'Reset',
       danger: true
     });
@@ -1949,6 +2386,7 @@
           <div class="key"><span class="hint-key">⌘ Z</span> / <span class="hint-key">Ctrl Z</span></div><div class="desc">Undo the last delete / import / reset</div>
           <div class="key"><span class="hint-key">Esc</span></div><div class="desc">Cancel an edit, close a popover or modal</div>
           <div class="key"><span class="hint-key">Enter</span></div><div class="desc">Commit a single-line edit (name, trigger, day, sender)</div>
+          <div class="key"><span class="hint-key">Double-click</span></div><div class="desc">Rename a flow tab</div>
           <div class="key"><span class="hint-key">?</span></div><div class="desc">Show this dialog</div>
         </div>
         <br>
@@ -1959,7 +2397,8 @@
           <li>Click the stage circle to toggle Primary ↔ Branch or add a yellow note.</li>
           <li>Drag cards to reorder them within or across stages.</li>
           <li>Drag a stage header to reorder the whole column.</li>
-          <li>Use <strong>Copy share link</strong> to send a snapshot to a teammate — state lives in the URL, no server.</li>
+          <li>Click the ⋯ on a flow tab to rename, duplicate, or delete it.</li>
+          <li><strong>Copy share link</strong> sends a snapshot of <em>all flows</em> via URL — no server.</li>
         </ul>
       `
     });
@@ -1980,7 +2419,6 @@
       if (iconWrap) iconWrap.innerHTML = ICONS[type];
     });
   }
-
   function wireToolbar() {
     document.getElementById('btnShare').onclick = copyShareLink;
     document.getElementById('btnExport').onclick = exportJson;
@@ -1995,7 +2433,6 @@
       e.target.value = '';
     };
     document.getElementById('toastUndo').onclick = undo;
-
     document.querySelectorAll('.chip').forEach(chip => {
       chip.onclick = () => {
         const type = chip.dataset.type;
@@ -2011,13 +2448,11 @@
       };
     });
   }
-
   function wireKeyboard() {
     document.addEventListener('keydown', (e) => {
       const meta = e.metaKey || e.ctrlKey;
       const ae = document.activeElement;
       const isEditing = ae && (ae.isContentEditable || ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA');
-
       if (meta && e.key === 'z' && !e.shiftKey) {
         if (isEditing) return;
         if (lastSnapshot) { e.preventDefault(); undo(); }
@@ -2029,20 +2464,18 @@
       if (e.key === 'Escape') closePopover();
     });
   }
-
   function wireOutsideClick() {
     document.addEventListener('mousedown', (e) => {
       const p = popoverEl();
       if (p.hidden) return;
       if (p.contains(e.target)) return;
-      if (e.target.closest('.card-channel') || e.target.closest('.stage-circle')) return;
+      if (e.target.closest('.card-channel') || e.target.closest('.stage-circle') || e.target.closest('.flow-tab-menu')) return;
       closePopover();
     });
   }
-
   function wireScroll() {
-    const topbar = document.getElementById('topbar');
-    const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 4);
+    const sh = document.getElementById('stickyHeader');
+    const onScroll = () => sh.classList.toggle('scrolled', window.scrollY > 4);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
@@ -2051,6 +2484,7 @@
   setIcons();
   render();
   wireToolbar();
+  wireFlowDesc();
   wireKeyboard();
   wireOutsideClick();
   wireScroll();
