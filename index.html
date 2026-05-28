@@ -7,87 +7,158 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      background: #F5F5F7;
-      color: #1D1D1F;
-      min-height: 100vh;
-      padding-bottom: 60px;
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --ink: #1D1D1F;
+      --ink-2: #4A4A4F;
+      --muted: #6E6E73;
+      --muted-2: #8E8E93;
+      --hairline: #E5E5EA;
+      --hairline-2: #F2F2F7;
+      --primary: #1D1D1F;
+      --accent: #007AFF;
+      --danger: #B91C1C;
+      --warn: #FF9F0A;
+      --warn-bg: #FFF8E8;
+      --warn-border: #FBBF24;
+      --warn-ink: #78350F;
+      --email: #3B82F6;
+      --sms: #10B981;
+      --inapp: #8B5CF6;
+      --igdm: #E1306C;
     }
 
-    /* ── Top bar ── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Sticky topbar ── */
     .topbar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 36px 48px 0;
-      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(245, 245, 247, 0.85);
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s, background 0.2s;
+      padding: 16px 32px;
     }
-    .topbar h1 {
-      font-size: 21px;
-      font-weight: 700;
-      letter-spacing: -0.4px;
+    .topbar.scrolled {
+      border-bottom-color: var(--hairline);
     }
-    .topbar .subtitle {
-      font-size: 13px;
-      color: #6E6E73;
-      margin-top: 5px;
-    }
-    .topbar-right {
+    .topbar-inner {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+    .topbar-title h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1.15;
+    }
+    .topbar-title p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .saved-indicator {
       font-size: 11.5px;
-      color: #34C759;
+      color: #16A34A;
       font-weight: 600;
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: opacity 0.25s;
       margin-right: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .saved-indicator.show { opacity: 1; }
+    .tool-divider {
+      width: 1px;
+      align-self: stretch;
+      background: var(--hairline);
+      margin: 4px 4px;
+    }
     .tool-btn {
-      background: white;
-      border: 1px solid #D2D2D7;
+      background: var(--surface);
+      border: 1px solid var(--hairline);
       border-radius: 8px;
-      padding: 7px 12px;
+      padding: 7px 11px;
       font-size: 12.5px;
       font-weight: 600;
-      color: #1D1D1F;
+      color: var(--ink);
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.12s, border-color 0.12s, transform 0.08s;
+      transition: background 0.12s, border-color 0.12s, transform 0.08s, color 0.12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1;
     }
-    .tool-btn:hover { background: #FAFAFC; border-color: #B8B8BD; }
-    .tool-btn:active { transform: scale(0.97); }
-    .tool-btn.flash { background: #34C759; border-color: #34C759; color: white; }
-    .tool-btn-danger { color: #B91C1C; }
-    .tool-btn-danger:hover { background: #FEF2F2; border-color: #FCA5A5; }
+    .tool-btn svg { flex-shrink: 0; }
+    .tool-btn:hover:not(:disabled) { background: #FAFAFC; border-color: #B8B8BD; }
+    .tool-btn:active:not(:disabled) { transform: scale(0.97); }
+    .tool-btn:disabled {
+      color: #C7C7CC;
+      cursor: default;
+      background: transparent;
+      border-color: var(--hairline);
+    }
+    .tool-btn.flash { background: #16A34A; border-color: #16A34A; color: white; }
+    .tool-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .tool-btn.primary:hover { background: #0066D6; border-color: #0066D6; }
+    .tool-btn.ghost {
+      border-color: transparent;
+      background: transparent;
+      padding: 7px 9px;
+    }
+    .tool-btn.ghost:hover { background: rgba(0,0,0,0.05); border-color: transparent; }
+    .tool-btn.icon-only { padding: 7px; }
+    .tool-btn.danger:hover { color: var(--danger); border-color: #FCA5A5; background: #FEF2F2; }
 
     /* ── Legend / filters ── */
     .legend {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 22px 48px 28px;
+      gap: 7px;
+      padding: 18px 48px 26px;
       flex-wrap: wrap;
     }
     .legend-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #8E8E93;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted-2);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       margin-right: 4px;
     }
     .chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 13px 5px 9px;
+      padding: 5px 12px 5px 10px;
       border-radius: 20px;
       font-size: 12.5px;
       font-weight: 600;
@@ -95,43 +166,44 @@
       border: 1.5px solid;
       transition: all 0.15s;
       user-select: none;
+      line-height: 1;
     }
-    .chip .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    .chip.email { border-color: #3B82F6; color: #3B82F6; background: white; }
-    .chip.email .dot { background: #3B82F6; }
-    .chip.email.active { background: #3B82F6; color: white; }
-    .chip.email.active .dot { background: white; }
-    .chip.sms { border-color: #10B981; color: #10B981; background: white; }
-    .chip.sms .dot { background: #10B981; }
-    .chip.sms.active { background: #10B981; color: white; }
-    .chip.sms.active .dot { background: white; }
-    .chip.inapp { border-color: #8B5CF6; color: #8B5CF6; background: white; }
-    .chip.inapp .dot { background: #8B5CF6; }
-    .chip.inapp.active { background: #8B5CF6; color: white; }
-    .chip.inapp.active .dot { background: white; }
-    .chip.igdm { border-color: #E1306C; color: #E1306C; background: white; }
-    .chip.igdm .dot { background: #E1306C; }
-    .chip.igdm.active { background: #E1306C; color: white; }
-    .chip.igdm.active .dot { background: white; }
+    .chip svg { flex-shrink: 0; }
+    .chip .cnt { font-weight: 500; opacity: 0.75; margin-left: 1px; }
+    .chip.email { border-color: var(--email); color: var(--email); background: white; }
+    .chip.email.active { background: var(--email); color: white; }
+    .chip.sms { border-color: var(--sms); color: var(--sms); background: white; }
+    .chip.sms.active { background: var(--sms); color: white; }
+    .chip.inapp { border-color: var(--inapp); color: var(--inapp); background: white; }
+    .chip.inapp.active { background: var(--inapp); color: white; }
+    .chip.igdm { border-color: var(--igdm); color: var(--igdm); background: white; }
+    .chip.igdm.active { background: var(--igdm); color: white; }
     .total-badge {
       margin-left: auto;
       font-size: 12px;
-      color: #8E8E93;
+      color: var(--muted-2);
     }
-    .total-badge strong { color: #1D1D1F; }
+    .total-badge strong { color: var(--ink); }
+    .hint-key {
+      display: inline-block;
+      background: white;
+      border: 1px solid var(--hairline);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10.5px;
+      font-family: ui-monospace, Menlo, monospace;
+      color: var(--muted);
+      margin: 0 2px;
+    }
 
     /* ── Scroll wrapper ── */
     .scroll-wrapper {
       overflow-x: auto;
-      padding: 0 48px 52px;
+      padding: 0 48px 60px;
       position: relative;
     }
     .scroll-wrapper::-webkit-scrollbar { height: 4px; }
-    .scroll-wrapper::-webkit-scrollbar-track { background: #E5E5EA; border-radius: 2px; }
+    .scroll-wrapper::-webkit-scrollbar-track { background: var(--hairline); border-radius: 2px; }
     .scroll-wrapper::-webkit-scrollbar-thumb { background: #C7C7CC; border-radius: 2px; }
 
     /* ── Timeline ── */
@@ -140,23 +212,23 @@
       gap: 0;
       min-width: max-content;
       position: relative;
-      padding-top: 4px;
+      padding-top: 6px;
       align-items: flex-start;
     }
     .timeline::before {
       content: '';
       position: absolute;
-      top: 23px;
+      top: 25px;
       left: 130px;
       right: 130px;
       height: 2px;
-      background: #E5E5EA;
+      background: var(--hairline);
       z-index: 0;
     }
 
     /* ── Gap (insert stage button) ── */
     .stage-gap {
-      width: 14px;
+      width: 16px;
       flex-shrink: 0;
       align-self: stretch;
       display: flex;
@@ -169,25 +241,28 @@
       height: 22px;
       border-radius: 50%;
       background: white;
-      border: 1.5px dashed #C7C7CC;
-      color: #8E8E93;
-      font-size: 13px;
-      font-weight: 600;
+      border: 1.5px solid var(--hairline);
+      color: var(--muted-2);
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.15s, transform 0.12s, background 0.12s, color 0.12s, border-color 0.12s;
+      opacity: 0.35;
+      transition: opacity 0.18s, transform 0.12s, background 0.12s, color 0.12s, border-color 0.12s;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
-      margin-top: 12px;
+      margin-top: 13px;
       font-family: inherit;
+      line-height: 1;
     }
-    .timeline:hover .add-stage-btn { opacity: 1; }
+    .timeline:hover .add-stage-btn { opacity: 0.8; }
+    .stage-gap:hover .add-stage-btn,
     .stage-gap .add-stage-btn:hover {
-      background: #1D1D1F;
+      opacity: 1;
+      background: var(--primary);
       color: white;
-      border-color: #1D1D1F;
+      border-color: var(--primary);
       transform: scale(1.15);
     }
     .stage-gap.drop-target::before {
@@ -198,7 +273,7 @@
       left: 50%;
       width: 3px;
       transform: translateX(-50%);
-      background: #FF9F0A;
+      background: var(--warn);
       border-radius: 2px;
     }
 
@@ -207,7 +282,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 206px;
+      width: 210px;
       flex-shrink: 0;
       padding: 0 10px;
       position: relative;
@@ -229,74 +304,103 @@
       width: 46px;
       height: 46px;
       border-radius: 50%;
-      background: #1D1D1F;
+      background: var(--primary);
       color: white;
       font-size: 15px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
-      box-shadow: 0 0 0 5px #F5F5F7, 0 2px 8px rgba(0,0,0,0.15);
+      margin-bottom: 8px;
+      box-shadow: 0 0 0 5px var(--bg), 0 2px 8px rgba(0,0,0,0.15);
       cursor: pointer;
-      transition: transform 0.12s;
+      transition: transform 0.12s, box-shadow 0.12s;
       border: none;
       font-family: inherit;
       padding: 0;
+      position: relative;
     }
-    .stage-circle:hover { transform: scale(1.08); }
+    .stage-circle:hover { transform: scale(1.08); box-shadow: 0 0 0 5px var(--bg), 0 4px 14px rgba(0,0,0,0.18); }
     .stage.branch .stage-circle {
-      background: #FF9F0A;
+      background: var(--warn);
       font-size: 18px;
     }
+
+    .stage-day {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9px;
+      background: #FAFAFC;
+      color: var(--muted);
+      margin-bottom: 6px;
+      outline: none;
+      min-width: 30px;
+      min-height: 14px;
+      text-align: center;
+      transition: background 0.12s, color 0.12s;
+      letter-spacing: 0.2px;
+    }
+    .stage-day:hover { background: var(--hairline); color: var(--ink); }
+    .stage-day:focus { background: white; box-shadow: 0 0 0 2px var(--accent); }
+    .stage-day:empty { background: transparent; min-width: 50px; }
+    .stage-day:empty::before {
+      content: '+ Day';
+      color: #D1D5DB;
+      font-style: italic;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .stage-head:hover .stage-day:empty::before { opacity: 0.7; }
+    .stage.branch .stage-day { background: #FFF4E0; color: #B45309; }
+
     .stage-name {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       text-align: center;
-      color: #1D1D1F;
+      color: var(--ink);
       outline: none;
-      padding: 2px 6px;
+      padding: 3px 6px;
       border-radius: 4px;
       max-width: 180px;
       word-wrap: break-word;
     }
     .stage-name:hover { background: rgba(0,0,0,0.04); }
-    .stage-name:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; }
+    .stage-name:focus { background: white; box-shadow: 0 0 0 2px var(--accent); }
     .stage.branch .stage-name { color: #B45309; }
     .stage-sub {
       font-size: 10.5px;
-      color: #8E8E93;
+      color: var(--muted-2);
       text-align: center;
       margin-top: 3px;
       max-width: 170px;
       line-height: 1.4;
       outline: none;
-      padding: 2px 6px;
+      padding: 3px 6px;
       border-radius: 4px;
       min-height: 17px;
     }
     .stage-sub:empty::before {
       content: 'Add subtitle…';
-      color: #C7C7CC;
+      color: #CDCDD0;
       font-style: italic;
     }
     .stage-sub:hover { background: rgba(0,0,0,0.04); }
-    .stage-sub:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; }
+    .stage-sub:focus { background: white; box-shadow: 0 0 0 2px var(--accent); }
 
     .stage-delete {
       position: absolute;
       top: -4px;
       right: 4px;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: white;
-      border: 1px solid #D2D2D7;
-      color: #6E6E73;
-      font-size: 13px;
-      font-weight: 600;
+      border: 1px solid var(--hairline);
+      color: var(--muted);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -306,30 +410,29 @@
       z-index: 3;
       padding: 0;
       font-family: inherit;
-      line-height: 1;
     }
     .stage:hover .stage-delete { opacity: 1; }
     .stage-delete:hover {
-      background: #B91C1C;
+      background: var(--danger);
       color: white;
-      border-color: #B91C1C;
+      border-color: var(--danger);
     }
 
     /* ── Cards ── */
     .cards {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
       width: 100%;
       min-height: 40px;
     }
 
     .card {
       background: white;
-      border-radius: 10px;
-      padding: 10px 12px 10px 10px;
+      border-radius: 11px;
+      padding: 10px 12px 11px 22px;
       border-left: 3px solid;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
       cursor: grab;
       transition: transform 0.13s ease, box-shadow 0.13s ease, opacity 0.15s;
       position: relative;
@@ -337,37 +440,59 @@
     .card:active { cursor: grabbing; }
     .card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.05);
     }
     .card.dragging { opacity: 0.4; }
-    .card.email  { border-left-color: #3B82F6; }
-    .card.sms    { border-left-color: #10B981; }
-    .card.inapp  { border-left-color: #8B5CF6; }
-    .card.igdm   { border-left-color: #E1306C; }
+    .card.email  { border-left-color: var(--email); }
+    .card.sms    { border-left-color: var(--sms); }
+    .card.inapp  { border-left-color: var(--inapp); }
+    .card.igdm   { border-left-color: var(--igdm); }
     .card.hidden { display: none; }
 
-    .card-type {
+    .card-grip {
+      position: absolute;
+      top: 12px;
+      left: 7px;
+      color: #D1D5DB;
+      opacity: 0.7;
+      pointer-events: none;
+      line-height: 0;
+    }
+    .card:hover .card-grip { opacity: 1; color: #9CA3AF; }
+
+    .card-channel {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       font-size: 9.5px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       cursor: pointer;
-      display: inline-block;
-      padding: 1px 4px;
-      border-radius: 3px;
+      padding: 2px 5px 2px 4px;
+      border-radius: 4px;
       transition: background 0.1s;
+      user-select: none;
+      line-height: 1;
     }
-    .card-type:hover { background: rgba(0,0,0,0.06); }
-    .card.email .card-type  { color: #3B82F6; }
-    .card.sms .card-type    { color: #10B981; }
-    .card.inapp .card-type  { color: #8B5CF6; }
-    .card.igdm .card-type   { color: #E1306C; }
+    .card-channel:hover { background: rgba(0,0,0,0.05); }
+    .card-channel svg { flex-shrink: 0; }
+    .card-channel .chev {
+      opacity: 0.5;
+      margin-left: 1px;
+      width: 7px;
+      height: 7px;
+    }
+    .card.email .card-channel  { color: var(--email); }
+    .card.sms .card-channel    { color: var(--sms); }
+    .card.inapp .card-channel  { color: var(--inapp); }
+    .card.igdm .card-channel   { color: var(--igdm); }
 
     .card-name {
       font-size: 12.5px;
       font-weight: 600;
-      color: #1D1D1F;
-      margin-top: 3px;
+      color: var(--ink);
+      margin-top: 4px;
       line-height: 1.3;
       outline: none;
       padding: 2px 4px;
@@ -375,11 +500,11 @@
       border-radius: 4px;
     }
     .card-name:hover { background: rgba(0,0,0,0.04); }
-    .card-name:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+    .card-name:focus { background: white; box-shadow: 0 0 0 2px var(--accent); cursor: text; }
 
     .card-trigger {
       font-size: 10.5px;
-      color: #8E8E93;
+      color: var(--muted-2);
       margin-top: 3px;
       outline: none;
       padding: 2px 4px;
@@ -389,71 +514,86 @@
     }
     .card-trigger:empty::before {
       content: 'Add trigger…';
-      color: #D1D1D6;
+      color: #CDCDD0;
       font-style: italic;
     }
     .card-trigger:hover { background: rgba(0,0,0,0.04); }
-    .card-trigger:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+    .card-trigger:focus { background: white; box-shadow: 0 0 0 2px var(--accent); cursor: text; }
 
     .card-sender {
-      font-size: 10px;
-      color: #A1A1A6;
-      margin-top: 4px;
-      font-weight: 500;
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9px;
+      margin-top: 6px;
       outline: none;
+      background: #F3F4F6;
+      color: #6B7280;
+      max-width: 100%;
+      transition: background 0.15s, color 0.15s, opacity 0.15s;
+      letter-spacing: 0.1px;
+    }
+    .card-sender:empty {
+      background: transparent;
       padding: 2px 4px;
       margin-left: -4px;
-      border-radius: 4px;
-      min-height: 16px;
+      opacity: 0.55;
     }
     .card-sender:empty::before {
-      content: '+ sender';
-      color: #D1D1D6;
+      content: '+ Sender';
+      color: #D1D5DB;
       font-style: italic;
-      opacity: 0;
-      transition: opacity 0.15s;
+      font-weight: 500;
     }
-    .card:hover .card-sender:empty::before { opacity: 1; }
-    .card-sender:hover { background: rgba(0,0,0,0.04); }
-    .card-sender:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
-    .card-sender::before { content: ''; }
-    .card-sender:not(:empty)::before {
-      content: 'From ';
-      color: #C7C7CC;
+    .card-sender:hover:not(:focus) { filter: brightness(0.96); }
+    .card-sender:focus {
+      background: white;
+      box-shadow: 0 0 0 2px var(--accent);
+      cursor: text;
+      color: var(--ink);
     }
+    .card-sender[data-sender="Benny"] { background: #FEF3C7; color: #92400E; }
+    .card-sender[data-sender="Account Manager"] { background: #EDE9FE; color: #5B21B6; }
+    .card-sender[data-sender="Brand"] { background: #DBEAFE; color: #1E40AF; }
+    .card-sender[data-sender="Automated"] { background: #ECFDF5; color: #047857; }
+    .card-sender[data-sender="Benny"]::before { content: '🐝 '; pointer-events: none; }
+    .card-sender[data-sender="Account Manager"]::before { content: '👤 '; pointer-events: none; }
+    .card-sender[data-sender="Brand"]::before { content: '🏢 '; pointer-events: none; }
+    .card-sender[data-sender="Automated"]::before { content: '⚙ '; pointer-events: none; }
 
     .card-desc {
       font-size: 11px;
-      color: #4A4A4F;
+      color: var(--ink-2);
       line-height: 1.55;
-      margin-top: 8px;
-      padding: 6px 6px 6px 6px;
-      border-top: 1px solid #F2F2F7;
+      margin-top: 10px;
+      padding: 8px 6px 4px;
+      border-top: 1px solid var(--hairline-2);
       outline: none;
       border-radius: 4px;
-      min-height: 24px;
+      min-height: 30px;
       white-space: pre-wrap;
+      margin-left: -6px;
+      margin-right: -6px;
     }
     .card-desc:empty::before {
       content: 'Add description…';
-      color: #D1D1D6;
+      color: #CDCDD0;
       font-style: italic;
     }
-    .card-desc:hover { background: rgba(0,0,0,0.04); }
-    .card-desc:focus { background: white; box-shadow: 0 0 0 2px #3B82F6; cursor: text; }
+    .card-desc:hover { background: rgba(0,0,0,0.025); }
+    .card-desc:focus { background: white; box-shadow: 0 0 0 2px var(--accent); cursor: text; }
 
     .card-delete {
       position: absolute;
       top: 6px;
       right: 6px;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: white;
-      border: 1px solid #D2D2D7;
-      color: #6E6E73;
-      font-size: 12px;
-      font-weight: 600;
+      border: 1px solid var(--hairline);
+      color: var(--muted);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -463,48 +603,52 @@
       z-index: 2;
       padding: 0;
       font-family: inherit;
-      line-height: 1;
     }
     .card:hover .card-delete { opacity: 1; }
     .card-delete:hover {
-      background: #B91C1C;
+      background: var(--danger);
       color: white;
-      border-color: #B91C1C;
+      border-color: var(--danger);
     }
 
     /* Note */
     .note {
-      background: #FFF8E8;
-      border: 1.5px solid #FBBF24;
-      border-radius: 8px;
+      background: var(--warn-bg);
+      border: 1.5px solid var(--warn-border);
+      border-radius: 9px;
       padding: 9px 11px;
       font-size: 10.5px;
-      color: #78350F;
+      color: var(--warn-ink);
       line-height: 1.5;
       white-space: pre-wrap;
     }
 
     /* Add card button */
     .add-card-btn {
-      background: white;
-      border: 1.5px dashed #C7C7CC;
+      background: #FCFCFE;
+      border: 1.5px dashed #D1D5DB;
       border-radius: 10px;
-      padding: 9px;
+      padding: 10px;
       font-size: 11.5px;
       font-weight: 600;
-      color: #8E8E93;
+      color: var(--muted);
       cursor: pointer;
       transition: all 0.15s;
       font-family: inherit;
       width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
     }
     .add-card-btn:hover {
-      border-color: #1D1D1F;
-      color: #1D1D1F;
-      background: #FAFAFC;
+      border-color: var(--primary);
+      color: var(--primary);
+      background: white;
+      border-style: solid;
     }
 
-    /* Empty state */
+    /* Empty timeline */
     .empty-timeline {
       width: 100%;
       padding: 80px 48px;
@@ -517,19 +661,19 @@
       padding: 18px 32px;
       font-size: 14px;
       font-weight: 600;
-      color: #6E6E73;
+      color: var(--muted);
       cursor: pointer;
       font-family: inherit;
     }
     .empty-timeline button:hover {
-      border-color: #1D1D1F;
-      color: #1D1D1F;
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
-    /* Drop indicator (in card list) */
+    /* Drop indicator */
     .drop-indicator {
       height: 3px;
-      background: #FF9F0A;
+      background: var(--warn);
       border-radius: 2px;
       margin: -1px 0;
       pointer-events: none;
@@ -539,20 +683,24 @@
     .popover {
       position: absolute;
       background: white;
-      border-radius: 10px;
+      border-radius: 11px;
       box-shadow: 0 12px 32px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.08);
       padding: 6px;
-      min-width: 160px;
+      min-width: 168px;
       z-index: 100;
       font-size: 12.5px;
     }
     .popover[hidden] { display: none; }
     .popover-section { padding: 4px 0; }
-    .popover-section + .popover-section { border-top: 1px solid #F2F2F7; margin-top: 4px; padding-top: 8px; }
+    .popover-section + .popover-section {
+      border-top: 1px solid var(--hairline-2);
+      margin-top: 4px;
+      padding-top: 8px;
+    }
     .popover-label {
       font-size: 10px;
       font-weight: 700;
-      color: #8E8E93;
+      color: var(--muted-2);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       padding: 2px 8px 4px;
@@ -565,29 +713,25 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: 500;
-      color: #1D1D1F;
+      color: var(--ink);
       transition: background 0.1s;
     }
-    .popover-option:hover { background: #F5F5F7; }
-    .popover-option.selected { background: #F5F5F7; font-weight: 600; }
-    .popover-option .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-    }
+    .popover-option:hover { background: var(--bg); }
+    .popover-option.selected { background: var(--bg); font-weight: 600; }
+    .popover-option .channel-icon { display: inline-flex; }
     .popover-note {
       width: 100%;
-      border: 1px solid #D2D2D7;
-      border-radius: 6px;
-      padding: 6px 8px;
+      border: 1px solid var(--hairline);
+      border-radius: 7px;
+      padding: 7px 9px;
       font-size: 11.5px;
       font-family: inherit;
       resize: vertical;
       min-height: 56px;
-      color: #1D1D1F;
+      color: var(--ink);
       outline: none;
     }
-    .popover-note:focus { border-color: #3B82F6; }
+    .popover-note:focus { border-color: var(--accent); }
     .popover-kind {
       display: flex;
       gap: 4px;
@@ -598,22 +742,22 @@
       padding: 6px 8px;
       font-size: 11.5px;
       font-weight: 600;
-      border: 1px solid #D2D2D7;
+      border: 1px solid var(--hairline);
       border-radius: 6px;
       background: white;
       cursor: pointer;
-      color: #1D1D1F;
+      color: var(--ink);
       font-family: inherit;
       transition: all 0.12s;
     }
     .popover-kind button.active {
-      background: #1D1D1F;
+      background: var(--primary);
       color: white;
-      border-color: #1D1D1F;
+      border-color: var(--primary);
     }
     .popover-kind button.branch.active {
-      background: #FF9F0A;
-      border-color: #FF9F0A;
+      background: var(--warn);
+      border-color: var(--warn);
     }
 
     /* Toast */
@@ -622,7 +766,7 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(8px);
-      background: #1D1D1F;
+      background: var(--primary);
       color: white;
       padding: 11px 14px 11px 16px;
       border-radius: 12px;
@@ -654,36 +798,171 @@
       font-family: inherit;
     }
     .toast button:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.36);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 20px;
+      animation: modalFade 0.18s ease-out;
+    }
+    @keyframes modalFade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .modal {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.32);
+      max-width: 440px;
+      width: 100%;
+      padding: 22px 22px 18px;
+      animation: modalScale 0.2s ease-out;
+    }
+    @keyframes modalScale {
+      from { transform: scale(0.95); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .modal-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .modal-body {
+      font-size: 13px;
+      color: var(--ink-2);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .modal-body code {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px;
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+    .modal-input {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      font-family: ui-monospace, Menlo, monospace;
+      border: 1px solid var(--hairline);
+      border-radius: 7px;
+      outline: none;
+      color: var(--ink);
+      margin-top: 10px;
+    }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .modal-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--hairline);
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s, border-color 0.12s, transform 0.08s;
+    }
+    .modal-btn:hover { background: #FAFAFC; border-color: #B8B8BD; }
+    .modal-btn:active { transform: scale(0.97); }
+    .modal-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .modal-btn.primary:hover { background: #0066D6; border-color: #0066D6; }
+    .modal-btn.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+    .modal-btn.danger:hover { background: #991717; border-color: #991717; }
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 18px;
+      margin-top: 12px;
+      font-size: 12.5px;
+    }
+    .shortcut-grid .key { color: var(--muted); }
+    .shortcut-grid .desc { color: var(--ink-2); }
+
+    /* Help / keyboard hint footer */
+    .footer-hint {
+      position: fixed;
+      bottom: 18px;
+      right: 22px;
+      font-size: 11px;
+      color: var(--muted-2);
+      background: white;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.12s, transform 0.08s;
+      z-index: 40;
+    }
+    .footer-hint:hover { background: #FAFAFC; }
+    .footer-hint:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
 
-  <header class="topbar">
-    <div class="topbar-left">
-      <h1>Creator Communication Flow</h1>
-      <p class="subtitle">Benable Brand Portal · Edit stages and touchpoints inline</p>
-    </div>
-    <div class="topbar-right">
-      <span class="saved-indicator" id="savedIndicator">Saved ✓</span>
-      <button class="tool-btn" id="btnShare">Copy share link</button>
-      <button class="tool-btn" id="btnExport">Export JSON</button>
-      <button class="tool-btn" id="btnImport">Import JSON</button>
-      <button class="tool-btn tool-btn-danger" id="btnReset">Reset</button>
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-title">
+        <h1>Creator Communication Flow</h1>
+        <p>Benable Brand Portal · Editable timeline</p>
+      </div>
+      <div class="topbar-actions">
+        <span class="saved-indicator" id="savedIndicator">Saved</span>
+        <button class="tool-btn ghost icon-only" id="btnUndo" title="Undo (⌘Z)" disabled></button>
+        <div class="tool-divider"></div>
+        <button class="tool-btn primary" id="btnShare" title="Copy a shareable URL"></button>
+        <div class="tool-divider"></div>
+        <button class="tool-btn" id="btnExport" title="Download JSON"></button>
+        <button class="tool-btn" id="btnImport" title="Load JSON"></button>
+        <div class="tool-divider"></div>
+        <button class="tool-btn ghost icon-only danger" id="btnReset" title="Reset to default"></button>
+        <button class="tool-btn ghost icon-only" id="btnHelp" title="Keyboard shortcuts"></button>
+      </div>
     </div>
   </header>
 
   <div class="legend">
-    <span class="legend-label">Show</span>
-    <span class="chip email active" data-type="email"><span class="dot"></span> Email <span class="cnt"></span></span>
-    <span class="chip sms active" data-type="sms"><span class="dot"></span> SMS <span class="cnt"></span></span>
-    <span class="chip inapp active" data-type="inapp"><span class="dot"></span> In-app <span class="cnt"></span></span>
-    <span class="chip igdm active" data-type="igdm"><span class="dot"></span> IG DM <span class="cnt"></span></span>
-    <span class="total-badge"><strong id="total-count">0</strong> touchpoints · click any text to edit · drag cards/stages to reorder</span>
+    <span class="legend-label">Channels</span>
+    <span class="chip email active" data-type="email"><span class="channel-icon"></span> Email <span class="cnt"></span></span>
+    <span class="chip sms active" data-type="sms"><span class="channel-icon"></span> SMS <span class="cnt"></span></span>
+    <span class="chip inapp active" data-type="inapp"><span class="channel-icon"></span> In-app <span class="cnt"></span></span>
+    <span class="chip igdm active" data-type="igdm"><span class="channel-icon"></span> IG DM <span class="cnt"></span></span>
+    <span class="total-badge"><strong id="total-count">0</strong> touchpoints across <strong id="stage-count">0</strong> stages</span>
   </div>
 
   <div class="scroll-wrapper">
     <div class="timeline" id="timeline"></div>
   </div>
+
+  <button class="footer-hint" id="footerHint" title="Show shortcuts">
+    Press <span class="hint-key">?</span> for shortcuts
+  </button>
 
   <datalist id="senders">
     <option value="Benny"></option>
@@ -700,8 +979,26 @@
   </div>
 
   <div id="popover" class="popover" hidden></div>
+  <div id="modalRoot"></div>
 
   <script>
+  // ───────────── ICONS ─────────────
+  const ICONS = {
+    email: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2" y="4" width="12" height="8.5" rx="1.3"/><path d="M2.5 5.2l5.5 4 5.5-4" stroke-linecap="round"/></svg>`,
+    sms: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 4A1.5 1.5 0 0 1 4 2.5h8A1.5 1.5 0 0 1 13.5 4v5A1.5 1.5 0 0 1 12 10.5H7l-3.5 3v-3H4A1.5 1.5 0 0 1 2.5 9V4z"/></svg>`,
+    inapp: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 7a4 4 0 0 1 8 0v3l1.2 1.5H2.8L4 10V7z" stroke-linecap="round"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/></svg>`,
+    igdm: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M14 2L1.5 7l4.5 1.5L8 13l1.5-4.5L14 2z"/><path d="M14 2L6 8.5"/></svg>`,
+    share: `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M8 10V2M5 5l3-3 3 3"/><path d="M3 9v3a1.5 1.5 0 0 0 1.5 1.5h7A1.5 1.5 0 0 0 13 12V9"/></svg>`,
+    export: `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 11v1.5A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5V11"/></svg>`,
+    import: `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M8 11V3M5 8l3 3 3-3"/><path d="M3 13.5h10"/></svg>`,
+    undo: `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M5 4.5L2 7.5l3 3"/><path d="M2 7.5h7.5a3.5 3.5 0 0 1 0 7H6.5"/></svg>`,
+    reset: `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M13 3v3.5h-3.5"/><path d="M12.5 7A5 5 0 1 0 11 11"/></svg>`,
+    help: `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.7 1.7 0 0 1 3.4 0c0 1.1-1 1.4-1.7 1.7v.5"/><circle cx="8" cy="11.3" r="0.55" fill="currentColor" stroke="none"/></svg>`,
+    grip: `<svg viewBox="0 0 16 16" width="9" height="13" fill="currentColor"><circle cx="5" cy="4" r="1.05"/><circle cx="5" cy="8" r="1.05"/><circle cx="5" cy="12" r="1.05"/><circle cx="11" cy="4" r="1.05"/><circle cx="11" cy="8" r="1.05"/><circle cx="11" cy="12" r="1.05"/></svg>`,
+    chev: `<svg viewBox="0 0 16 16" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 6l5 4 5-4"/></svg>`,
+    saved: `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>`
+  };
+
   // ───────────── SEED DATA ─────────────
   const SEED = {
     version: 1,
@@ -714,7 +1011,7 @@
     stages: [
       {
         id: "s1", name: "Invite Sent", subtitle: "Creator invited to the campaign",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 0",
         cards: [
           { id: "c1", channel: "email", name: "Campaign Invite", trigger: "On invite sent", sender: "Account Manager",
             description: "Subject line includes creator name + brand name. Introduces the brand, campaign overview, and a clear CTA to accept via portal. Creator name personalisation is a top creator request." },
@@ -726,6 +1023,7 @@
         id: "s2", name: "No Response", subtitle: "Conditional — if no reply after invite",
         kind: "branch",
         note: "⚠ Auto-archive at Day 7\nNo response after 7 days triggers auto-archive. Archive reason is recorded. Creator returns to general pool.",
+        day: "Day 1–7",
         cards: [
           { id: "c3", channel: "sms", name: "Follow-up Nudge", trigger: "12–24h after invite", sender: "Benny",
             description: "Short text nudge reminding creator to check their invite. Sent via Benny when no portal response is detected within 12–24 hours." },
@@ -735,7 +1033,7 @@
       },
       {
         id: "s3", name: "Accepted", subtitle: "Invite accepted, onboarding begins",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 0–2",
         cards: [
           { id: "c5", channel: "email", name: "Onboarding Welcome", trigger: "On acceptance", sender: "Automated",
             description: "Guides creator through completing their profile: collaboration preferences, gifted campaign openness, small brand willingness, and platform preferences." },
@@ -747,7 +1045,7 @@
       },
       {
         id: "s4", name: "Campaign Brief", subtitle: "Matched to a brand campaign",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 2–3",
         cards: [
           { id: "c8", channel: "email", name: "Campaign Brief", trigger: "On campaign assignment", sender: "Account Manager",
             description: "Brand overview, content requirements, posting platform, usage rights scope + duration (must be explicit — confusion caused campaign declines), posting timeline, and minimum gift value." },
@@ -757,7 +1055,7 @@
       },
       {
         id: "s5", name: "Product Sent", subtitle: "Gifted product in transit",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 3–7",
         cards: [
           { id: "c10", channel: "email", name: "Shipping Confirmation", trigger: "When product ships", sender: "Automated",
             description: "Shipping details and tracking info for gifted product(s). Includes expected arrival date and handling notes if relevant (e.g. fragile, perishable)." },
@@ -767,7 +1065,7 @@
       },
       {
         id: "s6", name: "Deadline", subtitle: "Posting deadline approaching",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 10–14",
         cards: [
           { id: "c12", channel: "inapp", name: "Deadline Reminder", trigger: "72h before deadline", sender: "Automated",
             description: "Portal banner showing days remaining to post, content requirements recap, and link to submission instructions." },
@@ -779,7 +1077,7 @@
       },
       {
         id: "s7", name: "Content Review", subtitle: "Submitted, under compliance review",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 14–16",
         cards: [
           { id: "c15", channel: "inapp", name: "Submission Received", trigger: "On content submission", sender: "Automated",
             description: "Confirmation that content has been logged and is under compliance review. Shows estimated review timeframe." },
@@ -791,7 +1089,7 @@
       },
       {
         id: "s8", name: "Complete", subtitle: "Campaign wrapped",
-        kind: "primary", note: null,
+        kind: "primary", note: null, day: "Day 16+",
         cards: [
           { id: "c18", channel: "email", name: "Campaign Thank You", trigger: "On campaign close", sender: "Account Manager",
             description: "Wrap-up email thanking the creator for participating. Highlights brand appreciation. Long-term relationship signals (early product access, PR lists) are a key differentiator for creator retention." },
@@ -820,23 +1118,27 @@
     return prefix + '_' + rand;
   }
 
+  function migrate(s) {
+    // Make sure all stages have a `day` field (added in v1.1)
+    s.stages.forEach(st => { if (!('day' in st)) st.day = null; });
+    return s;
+  }
+
   function loadState() {
-    // URL hash
     if (location.hash.startsWith('#state=')) {
       try {
         const decoded = decodeFromUrl(location.hash.slice('#state='.length));
         if (decoded && decoded.version === 1 && Array.isArray(decoded.stages)) {
           history.replaceState(null, '', location.pathname + location.search);
-          return decoded;
+          return migrate(decoded);
         }
       } catch (e) { console.warn('Bad share-URL state', e); }
     }
-    // localStorage
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.version === 1 && Array.isArray(parsed.stages)) return parsed;
+        if (parsed.version === 1 && Array.isArray(parsed.stages)) return migrate(parsed);
       }
     } catch (e) { console.warn('Bad localStorage state', e); }
     return clone(SEED);
@@ -851,12 +1153,11 @@
       } catch (e) { console.warn('Save failed', e); }
     }, 250);
   }
-
   function flashSaved() {
     const el = document.getElementById('savedIndicator');
     el.classList.add('show');
     clearTimeout(flashSaved._t);
-    flashSaved._t = setTimeout(() => el.classList.remove('show'), 800);
+    flashSaved._t = setTimeout(() => el.classList.remove('show'), 1000);
   }
 
   // ───────────── URL ENCODING ─────────────
@@ -887,8 +1188,6 @@
   }
 
   // ───────────── RENDER ─────────────
-  const STAGE_NUM_NAMES = [];
-
   function render() {
     const tl = document.getElementById('timeline');
     tl.innerHTML = '';
@@ -905,7 +1204,6 @@
       return;
     }
 
-    // Count primary stages for numbering
     let primaryCounter = 0;
     state.stages.forEach((stage, i) => {
       tl.appendChild(renderGap(i));
@@ -930,11 +1228,9 @@
     btn.onclick = (e) => { e.stopPropagation(); addStage(idx); };
     gap.appendChild(btn);
 
-    // Stage drop target
     gap.addEventListener('dragover', onStageGapDragOver);
     gap.addEventListener('dragleave', onStageGapDragLeave);
     gap.addEventListener('drop', onStageGapDrop);
-
     return gap;
   }
 
@@ -943,15 +1239,13 @@
     col.className = 'stage' + (stage.kind === 'branch' ? ' branch' : '');
     col.dataset.stageId = stage.id;
 
-    // Delete button
     const del = document.createElement('button');
     del.className = 'stage-delete';
     del.title = 'Delete stage';
-    del.textContent = '×';
+    del.innerHTML = `<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
     del.onclick = (e) => { e.stopPropagation(); deleteStage(stage.id); };
     col.appendChild(del);
 
-    // Head
     const head = document.createElement('div');
     head.className = 'stage-head';
     head.draggable = true;
@@ -964,6 +1258,14 @@
     circle.title = 'Edit stage type & note';
     circle.onclick = (e) => { e.stopPropagation(); openStagePopover(circle, stage.id); };
     head.appendChild(circle);
+
+    const day = document.createElement('div');
+    day.className = 'stage-day';
+    day.contentEditable = 'true';
+    day.spellcheck = false;
+    day.textContent = stage.day || '';
+    bindEditable(day, () => stage.day || '', v => { stage.day = v || null; });
+    head.appendChild(day);
 
     const name = document.createElement('div');
     name.className = 'stage-name';
@@ -983,7 +1285,6 @@
 
     col.appendChild(head);
 
-    // Cards
     const list = document.createElement('div');
     list.className = 'cards';
     list.dataset.stageId = stage.id;
@@ -1002,7 +1303,7 @@
 
     const addBtn = document.createElement('button');
     addBtn.className = 'add-card-btn';
-    addBtn.textContent = '+ Add card';
+    addBtn.innerHTML = '<span style="font-size:13px">+</span> Add card';
     addBtn.onclick = (e) => { e.stopPropagation(); addCard(stage.id); };
     list.appendChild(addBtn);
 
@@ -1018,12 +1319,17 @@
     el.dataset.type = card.channel;
     el.draggable = true;
 
-    const type = document.createElement('span');
-    type.className = 'card-type';
-    type.textContent = state.channels[card.channel].label;
-    type.title = 'Change channel';
-    type.onclick = (e) => { e.stopPropagation(); openChannelPopover(type, card.id); };
-    el.appendChild(type);
+    const grip = document.createElement('span');
+    grip.className = 'card-grip';
+    grip.innerHTML = ICONS.grip;
+    el.appendChild(grip);
+
+    const channel = document.createElement('span');
+    channel.className = 'card-channel';
+    channel.innerHTML = `<span class="channel-icon">${ICONS[card.channel]}</span><span class="channel-label">${state.channels[card.channel].label}</span><span class="chev">${ICONS.chev}</span>`;
+    channel.title = 'Change channel';
+    channel.onclick = (e) => { e.stopPropagation(); openChannelPopover(channel, card.id); };
+    el.appendChild(channel);
 
     const name = document.createElement('div');
     name.className = 'card-name';
@@ -1046,7 +1352,12 @@
     sender.contentEditable = 'true';
     sender.spellcheck = false;
     sender.textContent = card.sender || '';
-    bindEditable(sender, () => card.sender || '', v => { card.sender = v || null; });
+    if (card.sender) sender.dataset.sender = card.sender;
+    bindEditable(sender, () => card.sender || '', v => {
+      card.sender = v || null;
+      if (card.sender) sender.dataset.sender = card.sender;
+      else delete sender.dataset.sender;
+    });
     el.appendChild(sender);
 
     const desc = document.createElement('div');
@@ -1060,7 +1371,7 @@
     const del = document.createElement('button');
     del.className = 'card-delete';
     del.title = 'Delete card';
-    del.textContent = '×';
+    del.innerHTML = `<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
     del.onclick = (e) => { e.stopPropagation(); deleteCard(card.id); };
     el.appendChild(del);
 
@@ -1074,10 +1385,11 @@
     CHANNEL_KEYS.forEach(type => {
       const count = countCards(type);
       const cnt = document.querySelector('.chip.' + type + ' .cnt');
-      if (cnt) cnt.textContent = '(' + count + ')';
+      if (cnt) cnt.textContent = count;
     });
     const total = state.stages.reduce((acc, s) => acc + s.cards.length, 0);
     document.getElementById('total-count').textContent = total;
+    document.getElementById('stage-count').textContent = state.stages.length;
   }
   function countCards(type) {
     let c = 0;
@@ -1114,27 +1426,23 @@
       }
       original = null;
     });
-    // Prevent drag start from text drag inside editable
     el.addEventListener('dragstart', (e) => { e.stopPropagation(); e.preventDefault(); });
     el.addEventListener('mousedown', (e) => { e.stopPropagation(); });
   }
 
   // ───────────── POPOVERS ─────────────
   const popoverEl = () => document.getElementById('popover');
-
   function closePopover() {
     const p = popoverEl();
     p.hidden = true;
     p.innerHTML = '';
   }
-
   function openPopoverAt(anchor) {
     const p = popoverEl();
     const r = anchor.getBoundingClientRect();
     p.style.left = (r.left + window.scrollX) + 'px';
     p.style.top = (r.bottom + window.scrollY + 6) + 'px';
     p.hidden = false;
-    // Reposition if off right edge
     requestAnimationFrame(() => {
       const pr = p.getBoundingClientRect();
       if (pr.right > window.innerWidth - 12) {
@@ -1158,10 +1466,11 @@
     CHANNEL_KEYS.forEach(key => {
       const opt = document.createElement('div');
       opt.className = 'popover-option' + (card.channel === key ? ' selected' : '');
-      const dot = document.createElement('span');
-      dot.className = 'dot';
-      dot.style.background = state.channels[key].color;
-      opt.appendChild(dot);
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'channel-icon';
+      iconWrap.style.color = state.channels[key].color;
+      iconWrap.innerHTML = ICONS[key];
+      opt.appendChild(iconWrap);
       opt.appendChild(document.createTextNode(state.channels[key].label));
       opt.onclick = () => {
         card.channel = key;
@@ -1181,7 +1490,6 @@
     const p = popoverEl();
     p.innerHTML = '';
 
-    // Kind toggle
     const kindSec = document.createElement('div');
     kindSec.className = 'popover-section';
     const kindLbl = document.createElement('div');
@@ -1205,7 +1513,6 @@
     kindSec.appendChild(kindRow);
     p.appendChild(kindSec);
 
-    // Note
     const noteSec = document.createElement('div');
     noteSec.className = 'popover-section';
     const nlbl = document.createElement('div');
@@ -1219,7 +1526,6 @@
     ta.oninput = () => {
       stage.note = ta.value.trim() ? ta.value : null;
       saveState();
-      // Re-render note inline without full timeline rebuild
       renderStageNoteInline(stage.id);
     };
     noteSec.appendChild(ta);
@@ -1263,7 +1569,6 @@
     stage.cards.push(newCard);
     saveState();
     render();
-    // Focus its name
     setTimeout(() => {
       const el = document.querySelector('.card[data-card-id="' + newCard.id + '"] .card-name');
       if (el) { el.focus(); selectAll(el); }
@@ -1278,6 +1583,7 @@
     saveState();
     render();
     showToast();
+    updateUndoBtn();
   }
 
   function addStage(idx) {
@@ -1287,6 +1593,7 @@
       subtitle: '',
       kind: 'primary',
       note: null,
+      day: null,
       cards: []
     };
     state.stages.splice(idx, 0, newStage);
@@ -1298,17 +1605,24 @@
     }, 30);
   }
 
-  function deleteStage(stageId) {
+  async function deleteStage(stageId) {
     const stage = findStage(stageId);
     if (!stage) return;
     if (stage.cards.length > 0) {
-      if (!confirm('Delete "' + stage.name + '" and its ' + stage.cards.length + ' card' + (stage.cards.length === 1 ? '' : 's') + '?')) return;
+      const ok = await confirmModal({
+        title: 'Delete stage?',
+        body: `Delete "<strong>${escapeHtml(stage.name)}</strong>" and its ${stage.cards.length} card${stage.cards.length === 1 ? '' : 's'}? You can undo this immediately afterwards.`,
+        confirmLabel: 'Delete',
+        danger: true
+      });
+      if (!ok) return;
     }
     takeSnapshot('Deleted stage "' + (stage.name || 'stage') + '"');
     state.stages = state.stages.filter(s => s.id !== stageId);
     saveState();
     render();
     showToast();
+    updateUndoBtn();
   }
 
   function selectAll(el) {
@@ -1323,6 +1637,7 @@
   function takeSnapshot(label) {
     lastSnapshot = clone(state);
     lastSnapshotLabel = label;
+    updateUndoBtn();
   }
   function undo() {
     if (!lastSnapshot) return;
@@ -1332,7 +1647,14 @@
     saveState();
     render();
     hideToast();
+    updateUndoBtn();
   }
+  function updateUndoBtn() {
+    const btn = document.getElementById('btnUndo');
+    btn.disabled = !lastSnapshot;
+    btn.title = lastSnapshot ? `Undo: ${lastSnapshotLabel} (⌘Z)` : 'Nothing to undo';
+  }
+
   function showToast() {
     const toast = document.getElementById('toast');
     document.getElementById('toastMsg').textContent = lastSnapshotLabel + ' · ';
@@ -1345,7 +1667,7 @@
   }
 
   // ───────────── DRAG & DROP ─────────────
-  let dragKind = null;            // 'card' | 'stage'
+  let dragKind = null;
   let dragCardId = null;
   let dragCardStageId = null;
   let dragStageId = null;
@@ -1363,11 +1685,8 @@
   function onCardDragEnd(e, el) {
     el.classList.remove('dragging');
     clearDropIndicator();
-    dragKind = null;
-    dragCardId = null;
-    dragCardStageId = null;
+    dragKind = null; dragCardId = null; dragCardStageId = null;
   }
-
   function onCardListDragOver(e) {
     if (dragKind !== 'card') return;
     e.preventDefault();
@@ -1378,7 +1697,6 @@
   }
   function onCardListDragLeave(e) {
     if (dragKind !== 'card') return;
-    // Only clear if leaving the list entirely
     if (e.currentTarget.contains(e.relatedTarget)) return;
     clearDropIndicator();
   }
@@ -1405,7 +1723,6 @@
     const ind = document.createElement('div');
     ind.className = 'drop-indicator';
     if (idx >= cards.length) {
-      // before the note or add button
       const noteOrAdd = list.querySelector('.note') || list.querySelector('.add-card-btn');
       list.insertBefore(ind, noteOrAdd);
     } else {
@@ -1430,7 +1747,6 @@
     const srcIdx = fromStage.cards.findIndex(c => c.id === cardId);
     if (srcIdx === -1) return;
     const [card] = fromStage.cards.splice(srcIdx, 1);
-    // adjust targetIdx if moving within same stage and srcIdx < targetIdx
     if (fromStageId === toStageId && srcIdx < targetIdx) targetIdx--;
     toStage.cards.splice(targetIdx, 0, card);
     saveState();
@@ -1447,8 +1763,7 @@
   function onStageDragEnd(e, col) {
     col.classList.remove('dragging');
     clearDropIndicator();
-    dragKind = null;
-    dragStageId = null;
+    dragKind = null; dragStageId = null;
   }
   function onStageGapDragOver(e) {
     if (dragKind !== 'stage') return;
@@ -1482,24 +1797,87 @@
     render();
   }
 
+  // ───────────── MODAL ─────────────
+  function showModal({ title, body, actions }) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      if (title) {
+        const t = document.createElement('div');
+        t.className = 'modal-title';
+        t.textContent = title;
+        modal.appendChild(t);
+      }
+      if (body) {
+        const b = document.createElement('div');
+        b.className = 'modal-body';
+        b.innerHTML = body;
+        modal.appendChild(b);
+      }
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'modal-actions';
+      const cleanup = (val) => { overlay.remove(); document.removeEventListener('keydown', escHandler); resolve(val); };
+      const escHandler = (e) => { if (e.key === 'Escape') cleanup(null); };
+      document.addEventListener('keydown', escHandler);
+
+      actions.forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = 'modal-btn' + (a.primary ? ' primary' : '') + (a.danger ? ' danger' : '');
+        btn.textContent = a.label;
+        btn.onclick = () => cleanup(a.value);
+        actionsRow.appendChild(btn);
+      });
+      modal.appendChild(actionsRow);
+
+      overlay.appendChild(modal);
+      overlay.addEventListener('click', e => { if (e.target === overlay) cleanup(null); });
+      document.getElementById('modalRoot').appendChild(overlay);
+
+      const primary = actionsRow.querySelector('.modal-btn.primary, .modal-btn.danger');
+      if (primary) setTimeout(() => primary.focus(), 50);
+    });
+  }
+  function confirmModal({ title, body, confirmLabel = 'OK', danger = false }) {
+    return showModal({
+      title, body,
+      actions: [
+        { label: 'Cancel', value: false },
+        { label: confirmLabel, value: true, primary: !danger, danger }
+      ]
+    });
+  }
+  function alertModal({ title, body }) {
+    return showModal({
+      title, body,
+      actions: [{ label: 'OK', value: true, primary: true }]
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
   // ───────────── SHARE / IO ─────────────
   async function copyShareLink() {
+    const url = location.origin + location.pathname + '#state=' + encodeForUrl(state);
     try {
-      const url = location.origin + location.pathname + '#state=' + encodeForUrl(state);
       await navigator.clipboard.writeText(url);
-      flashBtn('btnShare', 'Link copied ✓');
+      flashBtn('btnShare', 'Copied ✓');
     } catch (e) {
-      // Fallback: show prompt
-      const url = location.origin + location.pathname + '#state=' + encodeForUrl(state);
-      prompt('Copy this share link:', url);
+      await alertModal({
+        title: 'Copy the share link',
+        body: `Clipboard access was blocked. Copy this URL manually:<br><br><code>${escapeHtml(url)}</code>`
+      });
     }
   }
   function flashBtn(id, text) {
     const btn = document.getElementById(id);
-    const orig = btn.textContent;
+    const orig = btn.innerHTML;
     btn.textContent = text;
     btn.classList.add('flash');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('flash'); }, 1400);
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('flash'); }, 1400);
   }
 
   function exportJson() {
@@ -1516,38 +1894,46 @@
   function importJson() {
     document.getElementById('fileInput').click();
   }
-  function handleImportFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        if (parsed.version !== 1 || !Array.isArray(parsed.stages)) {
-          alert('Invalid file: expected version 1 with stages array.');
-          return;
-        }
-        // Validate channels
-        for (const s of parsed.stages) {
-          for (const c of (s.cards || [])) {
-            if (!CHANNEL_KEYS.includes(c.channel)) {
-              alert('Invalid file: unknown channel "' + c.channel + '"');
-              return;
-            }
+  async function handleImportFile(file) {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (parsed.version !== 1 || !Array.isArray(parsed.stages)) {
+        await alertModal({ title: 'Invalid file', body: 'Expected <code>version: 1</code> with a <code>stages</code> array.' });
+        return;
+      }
+      for (const s of parsed.stages) {
+        for (const c of (s.cards || [])) {
+          if (!CHANNEL_KEYS.includes(c.channel)) {
+            await alertModal({ title: 'Invalid file', body: `Unknown channel "<code>${escapeHtml(c.channel)}</code>" in card "${escapeHtml(c.name)}".` });
+            return;
           }
         }
-        if (!confirm('Replace current flow with imported one?')) return;
-        takeSnapshot('Imported flow');
-        state = parsed;
-        saveState();
-        render();
-        showToast();
-      } catch (e) {
-        alert('Failed to parse JSON: ' + e.message);
       }
-    };
-    reader.readAsText(file);
+      const ok = await confirmModal({
+        title: 'Replace current flow?',
+        body: 'Your current state will be replaced with the imported flow. This is undoable.',
+        confirmLabel: 'Replace',
+        danger: false
+      });
+      if (!ok) return;
+      takeSnapshot('Imported flow');
+      state = migrate(parsed);
+      saveState();
+      render();
+      showToast();
+    } catch (e) {
+      await alertModal({ title: 'Failed to parse', body: escapeHtml(e.message) });
+    }
   }
-  function resetToDefault() {
-    if (!confirm('Reset to default seed data? Your current flow will be replaced.')) return;
+  async function resetToDefault() {
+    const ok = await confirmModal({
+      title: 'Reset to default?',
+      body: 'Your current flow will be replaced with the original seed data. You can undo right after.',
+      confirmLabel: 'Reset',
+      danger: true
+    });
+    if (!ok) return;
     takeSnapshot('Reset to default');
     state = clone(SEED);
     saveState();
@@ -1555,12 +1941,54 @@
     showToast();
   }
 
+  function showShortcuts() {
+    alertModal({
+      title: 'Keyboard shortcuts & tips',
+      body: `
+        <div class="shortcut-grid">
+          <div class="key"><span class="hint-key">⌘ Z</span> / <span class="hint-key">Ctrl Z</span></div><div class="desc">Undo the last delete / import / reset</div>
+          <div class="key"><span class="hint-key">Esc</span></div><div class="desc">Cancel an edit, close a popover or modal</div>
+          <div class="key"><span class="hint-key">Enter</span></div><div class="desc">Commit a single-line edit (name, trigger, day, sender)</div>
+          <div class="key"><span class="hint-key">?</span></div><div class="desc">Show this dialog</div>
+        </div>
+        <br>
+        <strong>Tips</strong>
+        <ul style="margin-top:6px; padding-left:18px; line-height:1.6; font-size:12.5px; color: var(--ink-2)">
+          <li>Click any text on a card or stage to edit it.</li>
+          <li>Click the channel chip on a card to change its channel.</li>
+          <li>Click the stage circle to toggle Primary ↔ Branch or add a yellow note.</li>
+          <li>Drag cards to reorder them within or across stages.</li>
+          <li>Drag a stage header to reorder the whole column.</li>
+          <li>Use <strong>Copy share link</strong> to send a snapshot to a teammate — state lives in the URL, no server.</li>
+        </ul>
+      `
+    });
+  }
+
   // ───────────── INIT ─────────────
+  function setIcons() {
+    document.getElementById('btnShare').innerHTML = ICONS.share + '<span>Copy share link</span>';
+    document.getElementById('btnExport').innerHTML = ICONS.export + '<span>Export</span>';
+    document.getElementById('btnImport').innerHTML = ICONS.import + '<span>Import</span>';
+    document.getElementById('btnReset').innerHTML = ICONS.reset;
+    document.getElementById('btnUndo').innerHTML = ICONS.undo;
+    document.getElementById('btnHelp').innerHTML = ICONS.help;
+    document.getElementById('savedIndicator').innerHTML = ICONS.saved + ' <span>Saved</span>';
+    document.querySelectorAll('.chip').forEach(chip => {
+      const type = chip.dataset.type;
+      const iconWrap = chip.querySelector('.channel-icon');
+      if (iconWrap) iconWrap.innerHTML = ICONS[type];
+    });
+  }
+
   function wireToolbar() {
     document.getElementById('btnShare').onclick = copyShareLink;
     document.getElementById('btnExport').onclick = exportJson;
     document.getElementById('btnImport').onclick = importJson;
     document.getElementById('btnReset').onclick = resetToDefault;
+    document.getElementById('btnUndo').onclick = undo;
+    document.getElementById('btnHelp').onclick = showShortcuts;
+    document.getElementById('footerHint').onclick = showShortcuts;
     document.getElementById('fileInput').onchange = (e) => {
       const f = e.target.files[0];
       if (f) handleImportFile(f);
@@ -1586,18 +2014,18 @@
 
   function wireKeyboard() {
     document.addEventListener('keydown', (e) => {
-      // Cmd-Z / Ctrl-Z for undo
       const meta = e.metaKey || e.ctrlKey;
+      const ae = document.activeElement;
+      const isEditing = ae && (ae.isContentEditable || ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA');
+
       if (meta && e.key === 'z' && !e.shiftKey) {
-        // Ignore if focus is in editable text
-        const ae = document.activeElement;
-        if (ae && (ae.isContentEditable || ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
-        if (lastSnapshot) {
-          e.preventDefault();
-          undo();
-        }
+        if (isEditing) return;
+        if (lastSnapshot) { e.preventDefault(); undo(); }
       }
-      // Esc closes popover
+      if (e.key === '?' && !isEditing) {
+        e.preventDefault();
+        showShortcuts();
+      }
       if (e.key === 'Escape') closePopover();
     });
   }
@@ -1607,17 +2035,26 @@
       const p = popoverEl();
       if (p.hidden) return;
       if (p.contains(e.target)) return;
-      // ignore clicks on triggers themselves; they handle re-open
-      if (e.target.closest('.card-type') || e.target.closest('.stage-circle')) return;
+      if (e.target.closest('.card-channel') || e.target.closest('.stage-circle')) return;
       closePopover();
     });
   }
 
+  function wireScroll() {
+    const topbar = document.getElementById('topbar');
+    const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 4);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
   state = loadState();
+  setIcons();
   render();
   wireToolbar();
   wireKeyboard();
   wireOutsideClick();
+  wireScroll();
+  updateUndoBtn();
   </script>
 </body>
 </html>
